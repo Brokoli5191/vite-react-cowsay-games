@@ -1,68 +1,604 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;700;800&display=swap');
+
 :root {
-	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-	line-height: 1.5;
-	font-weight: 400;
-
-	color-scheme: light dark;
-	color: rgba(255, 255, 255, 0.87);
-	background-color: #242424;
-
-	font-synthesis: none;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+    --bg-dark: #0c0c0e;
+    --border-color: #222226;
+    --border-hover: #3d3d45;
+    --primary: #ffffff;
+    --accent: #00ffaa;
+    --accent-dim: rgba(0, 255, 170, 0.15);
+    --danger: #ff5555;
+    --danger-dim: rgba(255, 85, 85, 0.15);
+    --text-main: #f4f4f5;
+    --text-muted: #80808a;
+    --panel-bg: #121215;
+    --font-sans: 'Outfit', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --transition-speed: 0.15s;
 }
 
-a {
-	font-weight: 500;
-	color: #646cff;
-	text-decoration: inherit;
-}
-a:hover {
-	color: #535bf2;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border-radius: 0 !important; /* Force sharp 90-degree edges globally */
 }
 
 body {
-	margin: 0;
-	display: flex;
-	place-items: center;
-	min-width: 320px;
-	min-height: 100vh;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-mono); /* Force clean monospace by default */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    margin: 0;
 }
 
+header {
+    width: 100%;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-dark);
+    z-index: 100;
+}
+
+.logo-text {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    font-family: var(--font-mono);
+    color: var(--primary);
+}
+
+.nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Developer Skip Level Button styling */
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.btn-secondary:hover {
+    border-color: var(--border-hover);
+    color: var(--primary);
+}
+
+.btn-icon {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    width: 34px;
+    height: 34px;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    font-size: 0.9rem;
+}
+
+.btn-icon:hover {
+    border-color: var(--border-hover);
+    color: var(--primary);
+}
+
+/* Main Container Layout */
+main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.game-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    padding: 3rem 2.5rem;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.screen {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Typography */
 h1 {
-	font-size: 3.2em;
-	line-height: 1.1;
+    font-size: 2.2rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+    color: var(--primary);
+    font-family: var(--font-sans);
 }
 
-button {
-	border-radius: 8px;
-	border: 1px solid transparent;
-	padding: 0.6em 1.2em;
-	font-size: 1em;
-	font-weight: 500;
-	font-family: inherit;
-	background-color: #1a1a1a;
-	cursor: pointer;
-	transition: border-color 0.25s;
-}
-button:hover {
-	border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-	outline: 4px auto -webkit-focus-ring-color;
+h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: var(--primary);
+    font-family: var(--font-sans);
 }
 
-@media (prefers-color-scheme: light) {
-	:root {
-		color: #213547;
-		background-color: #ffffff;
-	}
-	a:hover {
-		color: #747bff;
-	}
-	button {
-		background-color: #f9f9f9;
-	}
+.subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    max-width: 460px;
+    line-height: 1.5;
 }
+
+/* Minimal Flat Buttons */
+.btn-primary {
+    background: var(--primary);
+    color: var(--bg-dark);
+    border: 1px solid var(--primary);
+    padding: 0.8rem 2.2rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: var(--font-mono);
+    border-radius: 0;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+}
+
+.btn-primary:hover {
+    background: transparent;
+    color: var(--primary);
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+}
+
+/* Clean Plain ASCII Cow display */
+.ascii-cow-wrapper {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    padding: 1.5rem;
+    width: 100%;
+    margin-bottom: 2rem;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.35;
+    white-space: pre-wrap;
+    text-align: left;
+    color: var(--text-muted);
+    overflow-x: auto;
+}
+
+.ascii-cow-wrapper #l1-target-word {
+    color: var(--primary);
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.ascii-art {
+    font-family: var(--font-mono);
+    white-space: pre;
+    text-align: left;
+    display: block;
+    margin: 0 auto;
+    width: fit-content;
+    line-height: 1.35;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.ascii-cow-wrapper.success-flash {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.ascii-cow-wrapper.fail-flash {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+/* Flat clean Inputs */
+.game-input-container {
+    width: 100%;
+    max-width: 320px;
+    margin-bottom: 1rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 0.8rem 1.2rem;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    text-align: center;
+    outline: none;
+    transition: all var(--transition-speed);
+}
+
+.input-field:focus {
+    border-color: var(--border-hover);
+}
+
+/* Stats dashboard */
+.stats-panel {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 480px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-val {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: lowercase;
+    margin-top: 0.2rem;
+}
+
+.progress-bar-container {
+    width: 100%;
+    max-width: 480px;
+    height: 3px;
+    background: var(--border-color);
+    border-radius: 0;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+    transition: width 0.15s ease-out;
+}
+
+/* LEVEL 3: Flat minimal Grid */
+.pasture-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+    gap: 1rem;
+    width: 100%;
+    max-width: 580px;
+    margin-bottom: 2rem;
+}
+
+.pasture-cow {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    padding: 1rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    min-height: 96px;
+    user-select: none;
+}
+
+.pasture-cow:hover {
+    border-color: var(--border-hover);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.pasture-cow .bubble {
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    background: var(--bg-dark);
+    color: var(--primary);
+    padding: 0.2rem 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.pasture-cow.zapping {
+    animation: zap-dissolve-minimal 0.25s ease-out forwards;
+    pointer-events: none;
+}
+
+.pasture-cow.wrong-click {
+    animation: shake-border-red 0.3s ease-out;
+}
+
+/* LEVEL 4: Flat Drag Spelling */
+.drag-pasture {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 580px;
+    margin-bottom: 2.5rem;
+    padding: 1.2rem;
+    border: 1px dashed var(--border-color);
+    border-radius: 0;
+    min-height: 100px;
+    align-items: center;
+}
+
+.drag-cow {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 0;
+    padding: 0.6rem 1rem;
+    cursor: grab;
+    transition: all var(--transition-speed);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    touch-action: none;
+}
+
+.drag-cow:hover {
+    border-color: var(--border-hover);
+}
+
+.drag-cow:active {
+    cursor: grabbing;
+}
+
+.drag-cow.dragging {
+    opacity: 0.5;
+}
+
+.drop-slots-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+.drop-slot {
+    width: 110px;
+    height: 125px;
+    background: transparent;
+    border: 1px dashed var(--border-color);
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-speed);
+    position: relative;
+}
+
+.drop-slot.drag-over {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+}
+
+.drop-slot.filled {
+    border-style: solid;
+    border-color: var(--primary);
+}
+
+.drop-slot .slot-label {
+    position: absolute;
+    bottom: -20px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+/* Animations and States */
+.error-title {
+    color: var(--danger);
+}
+
+.error-cow {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+.victory-cow {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Screen shake keyframes */
+@keyframes shake-view {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+.shake-animation {
+    animation: shake-view 0.25s ease-in-out;
+}
+
+@keyframes zap-dissolve-minimal {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0; }
+}
+
+@keyframes shake-border-red {
+    0%, 100% { transform: translateX(0); border-color: var(--border-color); }
+    25% { transform: translateX(-4px); border-color: var(--danger); }
+    75% { transform: translateX(4px); border-color: var(--danger); }
+}
+
+/* Background pasture for drifting cows */
+#background-pasture {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.bg-cow {
+    position: absolute;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    line-height: 1.25;
+    color: var(--primary);
+    opacity: 0.035;
+    white-space: pre;
+    animation: drift-across linear forwards;
+    pointer-events: none;
+    user-select: none;
+}
+
+@keyframes drift-across {
+    0% {
+        transform: translateX(-150px);
+    }
+    100% {
+        transform: translateX(calc(100vw + 150px));
+    }
+}
+
+/* Minimal Tiny Confetti Particles */
+.confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.confetti-particle {
+    position: absolute;
+    width: 6px;
+    height: 10px;
+    opacity: 0.85;
+    animation: confetti-fall-3d 2.0s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes confetti-fall-3d {
+    0% {
+        transform: translateY(-20px) translateX(0) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(450px) translateX(var(--drift, 0px)) rotateX(720deg) rotateY(360deg) rotateZ(180deg);
+        opacity: 0;
+    }
+}
+
+/* Footer Section */
+footer {
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+}
+
+/* Morse Code Chart Legend */
+.morse-chart-container {
+    width: 100%;
+    max-width: 480px;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+}
+
+.morse-chart-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.4rem;
+}
+
+.morse-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-main);
+}
+
+.morse-chart-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    padding-bottom: 0.15rem;
+}
+
+.morse-chart-item .char {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.morse-chart-item .code {
+    color: var(--text-muted);
+}
+
+.ascii-cow-wrapper.reaction-active {
+    cursor: pointer;
+    transition: background-color var(--transition-speed);
+}
+
+.ascii-cow-wrapper.reaction-active:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: var(--border-hover);
+}
+
