@@ -1,5 +1,7 @@
-Guten Tag Herr oder Frau Leser/in!
+Guten Tag Herr oder Frau Leser/in!    1.6.2026
+
 Im Folgenden Text wird Ihnen erklärt was dieses Programm alles kann und können soll. 
+Das Spiel wird auf dem Link play.cowsay.win gefunden
 
 1. Die Kuh will gewinnen:
    Das bedeutet, dass die Kuh auf verschiedene Weisen WIN sagt.
