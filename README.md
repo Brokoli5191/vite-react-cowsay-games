@@ -1,90 +1,23 @@
-# React + Vite + Hono + Cloudflare Workers
+Guten Tag Herr oder Frau Leser/in!
+Im Folgenden Text wird Ihnen erklärt was dieses Programm alles kann und können soll. 
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/vite-react-template)
+1. Die Kuh will gewinnen:
+   Das bedeutet, dass die Kuh auf verschiedene Weisen WIN sagt.
 
-This template provides a minimal setup for building a React application with TypeScript and Vite, designed to run on Cloudflare Workers. It features hot module replacement, ESLint integration, and the flexibility of Workers deployments.
+2. Das erste Level funktioniert wie folgt:
+   Man muss verschiedene Arten von Win (z.B. wIn!, WIN, WiN!) in einer kurzen Zeitspanne eintippen um zum nächsten Level zu kommen.
 
-![React + TypeScript + Vite + Cloudflare Workers](https://imagedelivery.net/wSMYJvS3Xw-n339CbDyDIA/fc7b4b62-442b-4769-641b-ad4422d74300/public)
+3. Das zweite Level:
+   Man muss die Kühe finden die Win in einer andere Sprache sagen (und nicht ein anderes wort)
 
-<!-- dash-content-start -->
+4. Drittes Level:
+   Bilde das angegebene Wort mit den gegebenen Buchstaben
 
-🚀 Supercharge your web development with this powerful stack:
+5. Viertes:
+   Es flasht eine Kuh auf und man muss das Wort eingeben, welches die Kuh sagt.
 
-- [**React**](https://react.dev/) - A modern UI library for building interactive interfaces
-- [**Vite**](https://vite.dev/) - Lightning-fast build tooling and development server
-- [**Hono**](https://hono.dev/) - Ultralight, modern backend framework
-- [**Cloudflare Workers**](https://developers.cloudflare.com/workers/) - Edge computing platform for global deployment
+6. 5. Level:
+   Rechts steht der Morsecode zugehörig zu jedem Buchstaben. Schreibe in Morsecode: Win, Cow, Win!
 
-### ✨ Key Features
-
-- 🔥 Hot Module Replacement (HMR) for rapid development
-- 📦 TypeScript support out of the box
-- 🛠️ ESLint configuration included
-- ⚡ Zero-config deployment to Cloudflare's global network
-- 🎯 API routes with Hono's elegant routing
-- 🔄 Full-stack development setup
-- 🔎 Built-in Observability to monitor your Worker
-
-Get started in minutes with local development or deploy directly via the Cloudflare dashboard. Perfect for building modern, performant web applications at the edge.
-
-<!-- dash-content-end -->
-
-## Getting Started
-
-To start a new project with this template, run:
-
-```bash
-npm create cloudflare@latest -- --template=cloudflare/templates/vite-react-template
-```
-
-A live deployment of this template is available at:
-[https://react-vite-template.templates.workers.dev](https://react-vite-template.templates.workers.dev)
-
-## Development
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start the development server with:
-
-```bash
-npm run dev
-```
-
-Your application will be available at [http://localhost:5173](http://localhost:5173).
-
-## Production
-
-Build your project for production:
-
-```bash
-npm run build
-```
-
-Preview your build locally:
-
-```bash
-npm run preview
-```
-
-Deploy your project to Cloudflare Workers:
-
-```bash
-npm run build && npm run deploy
-```
-
-Monitor your workers:
-
-```bash
-npx wrangler tail
-```
-
-## Additional Resources
-
-- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
-- [Vite Documentation](https://vitejs.dev/guide/)
-- [React Documentation](https://reactjs.org/)
-- [Hono Documentation](https://hono.dev/)
+7. sechstes Level:
+   klicke sobald das wort win sagt (alle 200ms ändert sich das wort)
