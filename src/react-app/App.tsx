@@ -124,13 +124,14 @@ class SoundSynth {
 
     playSuccess() {
         if (this.muted || !this.ctx) return;
-        const now = this.ctx.currentTime;
+        const ctx = this.ctx;
+        const now = ctx.currentTime;
         const notes = [261.63, 329.63, 392.00, 523.25];
 
         notes.forEach((freq, idx) => {
             const time = now + idx * 0.12;
-            const osc = this.ctx.createOscillator();
-            const gainNode = this.ctx.createGain();
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
 
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, time);
@@ -140,7 +141,7 @@ class SoundSynth {
             gainNode.gain.exponentialRampToValueAtTime(0.001, time + 0.35);
 
             osc.connect(gainNode);
-            gainNode.connect(this.ctx.destination);
+            gainNode.connect(ctx.destination);
 
             osc.start(time);
             osc.stop(time + 0.4);
@@ -798,10 +799,10 @@ function App() {
     // ==========================================
     const startLevel2Flash = () => {
         setFlashScore(0);
-        triggerNewFlashRound(0);
+        triggerNewFlashRound();
     };
 
-    const triggerNewFlashRound = (currentScore: number) => {
+    const triggerNewFlashRound = () => {
         setFlashInputVal("");
         setFlashState('countdown');
         setFlashCountdownVal("Ready...");
@@ -859,7 +860,7 @@ function App() {
                 handleLevelWin(5); // Advance to Level 5 (Morse)
             } else {
                 setTimeout(() => {
-                    if (currentLevelRef.current === 4) triggerNewFlashRound(nextScore);
+                    if (currentLevelRef.current === 4) triggerNewFlashRound();
                 }, 1000);
             }
         } else {
@@ -870,7 +871,7 @@ function App() {
 
             setTimeout(() => {
                 setPanelShake(false);
-                if (currentLevelRef.current === 4) triggerNewFlashRound(flashScore);
+                if (currentLevelRef.current === 4) triggerNewFlashRound();
             }, 1000);
         }
     };
@@ -1002,7 +1003,7 @@ function App() {
         const renderText = () => {
             if (flashState === 'ready') return "Ready...";
             if (flashState === 'countdown') return flashCountdownVal;
-            if (flashState === 'flashing') return flashActiveWord;
+            if (flashState === 'flashing') return flashWord;
             return "?";
         };
         const activeText = renderText();
