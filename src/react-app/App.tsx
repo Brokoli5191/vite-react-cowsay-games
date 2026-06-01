@@ -9,6 +9,7 @@ class SoundSynth {
 
     init() {
         if (!this.ctx) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
         }
         if (this.ctx.state === 'suspended') {
@@ -361,6 +362,7 @@ function App() {
         }, 1000);
 
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen]);
 
     // Level 6 cycle hook
@@ -378,6 +380,7 @@ function App() {
         }, 200);
 
         return () => clearInterval(cycleInterval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen]);
 
     // Focus input field hooks
@@ -728,6 +731,7 @@ function App() {
                 setTimeout(() => setL3SlotsShake(false), 450);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [l3Slots, screen]);
 
     // HTML5 Drag Event Handles
@@ -986,16 +990,18 @@ function App() {
         const totalBubbleWidth = 14;
         const padSpaces = " ".repeat(Math.max(0, totalBubbleWidth - l1Target.length));
         return (
-<pre className="ascii-art">
- ___________________
-&lt; <span id="l1-target-word">{l1Target}</span>{padSpaces}&gt;
+            <pre className="ascii-art">
+                {` ___________________
+< `}
+                <span id="l1-target-word">{l1Target}</span>
+                {`${padSpaces}>
  -------------------
-        \\   ^__^
-         \\  (oo)\\_______
-            (__)\\       )\\/\\
+        \\\\   ^__^
+         \\\\  (oo)\\\\_______
+            (__)\\\\       )\\\\/\\\\
                 ||----w |
-                ||     ||
-</pre>
+                ||     ||`}
+            </pre>
         );
     };
 
@@ -1011,69 +1017,66 @@ function App() {
         const padSpaces = " ".repeat(Math.max(0, totalBubbleWidth - activeText.length));
 
         return (
-<pre className="ascii-art">
- ________________
-&lt; {activeText}{padSpaces}&gt;
+            <pre className="ascii-art">
+                {` ________________
+< ${activeText}${padSpaces}>
  ----------------
-        \\   ^__^
-         \\  (oo)\\_______
-            (__)\\       )\\/\\
+        \\\\   ^__^
+         \\\\  (oo)\\\\_______
+            (__)\\\\       )\\\\/\\\\
                 ||----w |
-                ||     ||
-</pre>
+                ||     ||`}
+            </pre>
         );
     };
 
     const renderIntroCow = () => {
         if (introFrame === 1) {
             return (
-<pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
-             *crunch*
+                <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
+                    {`             *crunch*
       ^__^  /
-     (..)\\\\_______
-     (__)\\\\       )\\/\\
-      \\/ ||----w |
-         ||     ||  vvvv
-</pre>
+     (..)\\\\\\\\_______
+     (__)\\\\\\\\       )\\\\/\\\\
+      \\\\/ ||----w |
+         ||     ||  vvvv`}
+                </pre>
             );
         }
         if (introFrame === 2) {
             return (
-<pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
-             *munch*
+                <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
+                    {`             *munch*
       ^__^  /
-     (--)\\\\_______
-     (__)\\\\       )\\/\\
-      \\/ ||----w |
-         ||     ||  vv
-</pre>
+     (--)\\\\\\\\_______
+     (__)\\\\\\\\       )\\\\/\\\\
+      \\\\/ ||----w |
+         ||     ||  vv`}
+                </pre>
             );
         }
         if (introFrame === 3) {
             return (
-<pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
-             
-
-
-      ^__^  
-     (oo)\\_______
-     (__)\\       )\\/\\
+                <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
+                    {`      ^__^  
+     (oo)\\\\_______
+     (__)\\\\       )\\\\/\\\\
         ||----w |
-        ||     ||
-</pre>
+        ||     ||`}
+                </pre>
             );
         }
         return (
-<pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
- ________________
-&lt;      WIN!      &gt;
+            <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
+                {` ________________
+<      WIN!      >
  ----------------
-        \\\\   ^__^
-         \\\\  (★★)\\_______
-            (__)\\       )\\/\\
+        \\\\\\\\   ^__^
+         \\\\\\\\  (★★)\\\\_______
+            (__)\\\\       )\\\\/\\\\
                 ||----w |
-                ||     ||
-</pre>
+                ||     ||`}
+            </pre>
         );
     };
 
@@ -1169,18 +1172,18 @@ function App() {
                     {/* SCREEN: START */}
                     <section className={`screen ${screen === 'start' ? 'active' : ''}`}>
                         <h1>COWSAY.WIN</h1>
-                        <p className="subtitle">A 3-stage game of typing, translation, and letters merging.</p>
+                        <p className="subtitle">A 6-stage game of typing, translation, spelling, memory, morse code, and reaction.</p>
                         
                         <div className="ascii-cow-wrapper">
                             <pre className="ascii-art">
- ____________________
-&lt; PLAY COWSAY GAME! &gt;
+                                {` ____________________
+< PLAY COWSAY GAME! >
  --------------------
-        \\   ^__^
-         \\  (oo)\\_______
-            (__)\\       )\\/\\
+        \\\\   ^__^
+         \\\\  (oo)\\\\_______
+            (__)\\\\       )\\\\/\\\\
                 ||----w |
-                ||     ||
+                ||     ||`}
                             </pre>
                         </div>
                         
@@ -1231,9 +1234,9 @@ function App() {
                                 >
                                     <div className="bubble">{cow.text}</div>
                                     <pre className="ascii-art" style={{ fontSize: "0.75rem", lineHeight: 1.15, width: "fit-content", margin: "0 auto" }}>
-                                         (oo)
-                                        /---\\\\
-                                        *   *
+                                        {` (oo)
+/---\\\\\\\\
+*   *`}
                                     </pre>
                                 </div>
                             ))}
@@ -1257,13 +1260,13 @@ function App() {
                                 >
                                     {slot ? (
                                         <pre className="ascii-art" style={{ fontSize: "0.6rem", lineHeight: 1.2 }}>
-                                           _____
-                                          &lt;  {slot.char}  &gt;
-                                           -----
-                                             \\   ^__^
-                                              \\ (oo)\\___
-                                                (__)\\   )\\/\\
-                                                    ||-w|
+                                            {`   _____
+ <  `}{slot.char}{`  >
+  -----
+      \\\\   ^__^
+       \\\\ (oo)\\\\___
+         (__)\\\\   )\\\\/\\\\
+             ||-w|`}
                                         </pre>
                                     ) : (
                                         <span className="slot-label">
@@ -1290,27 +1293,27 @@ function App() {
                                         className="drag-cow"
                                     >
                                         <pre className="ascii-art" style={{ fontSize: "0.7rem", lineHeight: 1.2 }}>
-                                           _____
-                                          &lt;  {letter.char}  &gt;
-                                           -----
-                                             \\   ^__^
-                                              \\ (oo)\\___
-                                                (__)\\   )\\/\\
-                                                    ||-w|
+                                            {`   _____
+ <  `}{letter.char}{`  >
+  -----
+      \\\\   ^__^
+       \\\\ (oo)\\\\___
+         (__)\\\\   )\\\\/\\\\
+             ||-w|`}
                                         </pre>
                                     </div>
                                 ))
                             ) : (
                                 <div className="ascii-cow-wrapper text-center victory-cow" style={{ width: "100%" }}>
                                     <pre className="ascii-art">
- ___________________
-&lt; Win!              &gt;
+                                        {` ___________________
+< Win!              >
  -------------------
-        \\   ^__^
-         \\  (★★)\\_______
-            (__)\\       )\\/\\
+        \\\\   ^__^
+         \\\\  (★★)\\\\_______
+            (__)\\\\       )\\/\\
                 ||----w |
-                ||     ||
+                ||     ||`}
                                     </pre>
                                 </div>
                             )}
@@ -1355,14 +1358,14 @@ function App() {
 
                         <div className={`ascii-cow-wrapper ${morseSuccess ? 'success-flash' : ''} ${morseFail ? 'fail-flash' : ''}`}>
                             <pre className="ascii-art">
- ________________
-&lt; Translate: {morseTargets[morseTargetIdx] ?? ""} &gt;
+                                {` ________________
+< Translate: ${morseTargets[morseTargetIdx] ?? ""} >
  ----------------
-        \\   ^__^
-         \\  (oo)\\_______
-            (__)\\       )\\/\\
+        \\\\   ^__^
+         \\\\  (oo)\\\\_______
+            (__)\\\\       )\\\\/\\\\
                 ||----w |
-                ||     ||
+                ||     ||`}
                             </pre>
                         </div>
 
@@ -1396,14 +1399,14 @@ function App() {
                             className={`ascii-cow-wrapper reaction-active ${l6FlashSuccess ? 'success-flash' : ''} ${l6FlashFail ? 'fail-flash' : ''}`}
                         >
                             <pre className="ascii-art">
- ________________
-&lt; {clickerWord}            &gt;
+                                {` ________________
+< ${clickerWord}${" ".repeat(Math.max(0, 14 - clickerWord.length))}>
  ----------------
-        \\   ^__^
-         \\  (oo)\\_______
-            (__)\\       )\\/\\
+        \\\\   ^__^
+         \\\\  (oo)\\\\_______
+            (__)\\\\       )\\\\/\\\\
                 ||----w |
-                ||     ||
+                ||     ||`}
                             </pre>
                         </div>
                     </section>
@@ -1415,14 +1418,14 @@ function App() {
                         
                         <div className="ascii-cow-wrapper error-cow">
                             <pre className="ascii-art">
- ___________________
-&lt; MOOO-ve along... &gt;
+                                {` ___________________
+< MOOO-ve along... >
  -------------------
-        \\   ^__^
-         \\  (xx)\\_______
-            (__)\\       )\\/\\
+        \\\\   ^__^
+         \\\\  (xx)\\\\_______
+            (__)\\\\       )\\\\/\\\\
                 ||----w |
-                ||     ||
+                ||     ||`}
                             </pre>
                         </div>
 
@@ -1436,14 +1439,14 @@ function App() {
 
                         <div className="ascii-cow-wrapper victory-cow" id="victory-cow-display">
                             <pre className="ascii-art">
- _______________________________________
-&lt; WINNER! COWSAY RULES THE PASTURE! &gt;
+                                {` _______________________________________
+< WINNER! COWSAY RULES THE PASTURE! >
  ---------------------------------------
-        \\   ^__^
-         \\  (★☆)\\_______
-            (__)\\       )\\/\\
+        \\\\   ^__^
+         \\\\  (★☆)\\\\_______
+            (__)\\\\       )\\\\/\\\\
                 ||----w |
-                ||     ||
+                ||     ||`}
                             </pre>
                         </div>
 
