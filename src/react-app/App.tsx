@@ -305,7 +305,7 @@ function App() {
     const [l3FusionWin, setL3FusionWin] = useState<boolean>(false);
 
     // Level 4: Flash Memory states
-    const flashWords = ["MILK", "MOOO", "HAYY", "FARM", "TAIL", "HORN", "PASTURE", "CLOVER", "BULL", "CALF"];
+    const flashWords = ["MILK", "MOOO", "HAY", "FARM", "TAIL", "HORN", "PASTURE", "CLOVER", "BULL", "CALF"];
     const [flashWord, setFlashWord] = useState<string>("");
     const [flashScore, setFlashScore] = useState<number>(0);
     const [flashState, setFlashState] = useState<'ready' | 'countdown' | 'flashing' | 'question' | 'success' | 'fail'>('ready');
@@ -320,8 +320,8 @@ function App() {
         'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
         'Y': '-.--', 'Z': '--..', '!': '-.-.--'
     };
-    const morseTargets = ["Win", "Cow", "Win!"];
-    const morseSolutions = [".-- .. -.", "-.-. --- .--", ".-- .. -. -.-.--"];
+    const morseTargets = ["Hay", "Cow", "Win!"];
+    const morseSolutions = [".... .- -.--", "-.-. --- .--", ".-- .. -. -.-.--"];
     const [morseTargetIdx, setMorseTargetIdx] = useState<number>(0);
     const [morseInputVal, setMorseInputVal] = useState<string>("");
     const [morseSuccess, setMorseSuccess] = useState<boolean>(false);
@@ -459,7 +459,7 @@ function App() {
                 }
                 return next;
             });
-        }, 200);
+        }, 350);
 
         return () => clearInterval(cycleInterval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1846,7 +1846,7 @@ function App() {
                     {/* SCREEN: LEVEL 6 (REACTION CLICKER) */}
                     <section className={`screen ${screen === 'level6-clicker' ? 'active' : ''}`}>
                         <h2>Level 6: Reaction</h2>
-                        <p className="subtitle">Click the cow ONLY when it says WIN! (cycles every 200ms)</p>
+                        <p className="subtitle">Click the cow ONLY when it says WIN! (cycles every 350ms)</p>
 
                         <div
                             onClick={handleLevel6CowClick}
