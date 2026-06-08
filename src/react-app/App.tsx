@@ -240,6 +240,7 @@ function App() {
     const [finalTime, setFinalTime] = useState<number>(0);
     const [finalRank, setFinalRank] = useState<string>("C-TIER");
     const [showSkip, setShowSkip] = useState<boolean>(false);
+    const [timerPaused, setTimerPaused] = useState<boolean>(false);
 
     // Audio synthesizer reference
     const synthRef = useRef<SoundSynth | null>(null);
@@ -405,6 +406,7 @@ function App() {
         if (!activeScreens.includes(screen)) return;
 
         const interval = setInterval(() => {
+            if (timerPaused) return;
             if (screen === 'level8-pinjata' && !l8StartedRef.current) {
                 return;
             }
@@ -423,7 +425,7 @@ function App() {
 
         return () => clearInterval(interval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [screen]);
+    }, [screen, timerPaused]);
 
     // Developer console commands to show/hide skip level button
     useEffect(() => {
@@ -495,6 +497,7 @@ function App() {
     const startLevel = (levelNum: number) => {
         currentLevelRef.current = levelNum;
         setTimer(30);
+        setTimerPaused(false);
         setPanelShake(false);
 
         if (levelNum === 1) {
@@ -589,6 +592,7 @@ function App() {
     };
 
     const handleLevelWin = (nextLevel: number) => {
+        setTimerPaused(true);
         getSynth().playSuccess();
         triggerScreenSparks();
         setTimeout(() => {
@@ -603,6 +607,7 @@ function App() {
     };
 
     const handleGameVictory = () => {
+        setTimerPaused(true);
         getSynth().playMoo();
         const duration = Math.round((Date.now() - (startTimeRef.current ?? Date.now())) / 1000);
         setFinalTime(duration);
@@ -763,7 +768,7 @@ function App() {
             const isCorrect = types[0] === 'bubble' && types[1] === 'head' && types[2] === 'body' && types[3] === 'legs';
 
             if (isCorrect) {
-                setTimer(999);
+                setTimerPaused(true);
                 getSynth().playSuccess();
                 triggerScreenSparks();
                 setL1AssembleWin(true);
@@ -947,7 +952,7 @@ function App() {
             const spelled = l3Slots.map(s => s?.char).join('');
             if (spelled === 'Win!') {
                 // VICTORY FUSION
-                setTimer(999);
+                setTimerPaused(true);
                 getSynth().playSuccess();
                 triggerScreenSparks();
                 setTimeout(() => {
@@ -1219,7 +1224,7 @@ function App() {
         triggerScreenSparks();
 
         if (nextHits <= 0) {
-            setTimer(999);
+            setTimerPaused(true);
             getSynth().playSuccess();
             setL8PinjataWin(true);
             setTimeout(() => {
@@ -1294,7 +1299,7 @@ function App() {
             return next;
         });
 
-        setTimer(999);
+        setTimerPaused(true);
         getSynth().playSuccess();
         triggerScreenSparks();
         setL9Message("Opponent caught! Mooo-ve to Victory!");
@@ -1574,7 +1579,7 @@ function App() {
                     {/* SCREEN: START */}
                     <section className={`screen ${screen === 'start' ? 'active' : ''}`}>
                         <h1>COWSAY.WIN</h1>
-                        <p className="subtitle">A 6-stage game of typing, translation, spelling, memory, morse code, and reaction.</p>
+                        <p className="subtitle">A 9-stage game of assembly, translation, spelling, memory, morse code, reaction, typing, pinjata, and grid chase.</p>
                         
                         <div className="ascii-cow-wrapper">
                             <pre className="ascii-art">
