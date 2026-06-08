@@ -6,7 +6,7 @@ Das Spiel wird auf dem Link play.cowsay.win gefunden
 - Die Kuh will gewinnen:
    Das bedeutet, dass die Kuh auf verschiedene Weisen WIN sagt.
 
-1. Erstes Level
+1. Erstes Level:
    Füge die Teile einer Kuh zusammen, sodass sie gewinnen kann!
 
 2. Das zweite Level:
