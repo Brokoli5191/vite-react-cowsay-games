@@ -807,7 +807,34 @@ footer {
     visibility: hidden;
 }
 
+.desktop-text {
+    display: inline;
+}
+
 @media (max-width: 600px) {
+    .desktop-text {
+        display: none;
+    }
+
+    .nav-controls {
+        gap: 0.4rem;
+    }
+
+    .btn-secondary {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.75rem;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .victory-cow pre.ascii-art,
+    .ascii-cow-wrapper pre.ascii-art {
+        font-size: 0.6rem !important;
+    }
+
     /* Main body and card */
     main {
         padding: 0.5rem;

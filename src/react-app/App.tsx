@@ -239,6 +239,7 @@ function App() {
     const [gameoverReason, setGameoverReason] = useState<string>("Time ran out.");
     const [finalTime, setFinalTime] = useState<number>(0);
     const [finalRank, setFinalRank] = useState<string>("C-TIER");
+    const [showSkip, setShowSkip] = useState<boolean>(false);
 
     // Audio synthesizer reference
     const synthRef = useRef<SoundSynth | null>(null);
@@ -262,8 +263,8 @@ function App() {
     // Level 1: Assembly states
     const initialAssemblyParts: AssemblyPart[] = [
         { id: 0, type: 'bubble', text: " _________________\n<      Win!       >\n -----------------" },
-        { id: 1, type: 'head', text: "        \\   ^__^\n         \\  (oo)\\\\_______" },
-        { id: 2, type: 'body', text: "            (__)\\\\       )\\\\/\\\\" },
+        { id: 1, type: 'head', text: "        \\   ^__^\n         \\  (oo)\\_______" },
+        { id: 2, type: 'body', text: "            (__)\\       )\\/\\" },
         { id: 3, type: 'legs', text: "                ||----w |\n                ||     ||" }
     ];
     const [l1AssembleParts, setL1AssembleParts] = useState<AssemblyPart[]>([]);
@@ -342,18 +343,18 @@ function App() {
     useEffect(() => {
         const cowPatterns = [
 `  ^__^
- (oo)\\\\_______
- (__)\\\\       )\\/\\\\
+ (oo)\\_______
+ (__)\\       )\\/\\
      ||----w |
      ||     ||`,
 `  (oo)
-  /--\\\\_______
- (__)        )\\/\\\\
+  /--\\_______
+ (__)        )\\/\\
      ||----w |
      ||     ||`,
 `  ^__^
-  (xx)\\\\_______
-  (__)\\\\       )\\/\\\\
+  (xx)\\_______
+  (__)\\       )\\/\\
       ||----w |
       ||     ||`
         ];
@@ -423,6 +424,26 @@ function App() {
         return () => clearInterval(interval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [screen]);
+
+    // Developer console commands to show/hide skip level button
+    useEffect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).enableSkip = () => {
+            setShowSkip(true);
+            console.log("Developer skip button enabled.");
+        };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).disableSkip = () => {
+            setShowSkip(false);
+            console.log("Developer skip button disabled.");
+        };
+        return () => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            delete (window as any).enableSkip;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            delete (window as any).disableSkip;
+        };
+    }, []);
 
     // Level 6 cycle hook
     useEffect(() => {
@@ -495,7 +516,7 @@ function App() {
             setupLevel2Pasture();
 
         } else if (levelNum === 3) {
-            setTimer(45);
+            setTimer(30);
             setScoreLabel("Letters Snapped");
             setScoreVal("0/4");
             setProgressPercentage(0);
@@ -522,7 +543,7 @@ function App() {
             setScreen('level5-morse');
 
         } else if (levelNum === 6) {
-            setTimer(20);
+            setTimer(30);
             setClickerScore(0);
             setScoreLabel("CLICKS");
             setScoreVal("0/3");
@@ -530,7 +551,7 @@ function App() {
             setScreen('level6-clicker');
 
         } else if (levelNum === 7) {
-            setTimer(30);
+            setTimer(40);
             setL1Score(0);
             setL1Input("");
             setScoreLabel("TYPED");
@@ -540,7 +561,7 @@ function App() {
             setScreen('level7-typing');
 
         } else if (levelNum === 8) {
-            setTimer(15);
+            setTimer(5);
             setL8HitsLeft(30);
             setL8PinjataShake(false);
             setL8PinjataWin(false);
@@ -1362,9 +1383,9 @@ function App() {
                 <span id="l1-target-word">{l1Target}</span>
                 {`${padSpaces}>
  -------------------
-        \\\\   ^__^
-         \\\\  (oo)\\\\_______
-            (__)\\\\       )\\\\/\\\\
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
             </pre>
@@ -1387,9 +1408,9 @@ function App() {
                 {` ________________
 < ${activeText}${padSpaces}>
  ----------------
-        \\\\   ^__^
-         \\\\  (oo)\\\\_______
-            (__)\\\\       )\\\\/\\\\
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
             </pre>
@@ -1402,9 +1423,9 @@ function App() {
                 <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
                     {`             *crunch*
       ^__^  /
-     (..)\\\\\\\\_______
-     (__)\\\\\\\\       )\\\\/\\\\
-      \\\\/ ||----w |
+     (..)\\_______
+     (__)\\       )\\/\\
+      \\/ ||----w |
          ||     ||  vvvv`}
                 </pre>
             );
@@ -1414,9 +1435,9 @@ function App() {
                 <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
                     {`             *munch*
       ^__^  /
-     (--)\\\\\\\\_______
-     (__)\\\\\\\\       )\\\\/\\\\
-      \\\\/ ||----w |
+     (--)\\_______
+     (__)\\       )\\/\\
+      \\/ ||----w |
          ||     ||  vv`}
                 </pre>
             );
@@ -1425,8 +1446,8 @@ function App() {
             return (
                 <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
                     {`      ^__^  
-     (oo)\\\\_______
-     (__)\\\\       )\\\\/\\\\
+     (oo)\\_______
+     (__)\\       )\\/\\
         ||----w |
         ||     ||`}
                 </pre>
@@ -1437,9 +1458,9 @@ function App() {
                 {` ________________
 <      Moo!      >
  ----------------
-        \\\\\\\\   ^__^
-         \\\\\\\\  (oo)\\\\_______
-            (__)\\\\       )\\\\/\\\\
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
             </pre>
@@ -1485,8 +1506,13 @@ function App() {
                 </div>
                 <div className="nav-controls">
                     {isGameScreenActive && (
+                        <button onClick={() => startLevel(currentLevelRef.current)} className="btn-secondary" title="Restart Level">
+                            <span className="desktop-text">Restart Level </span>🔄
+                        </button>
+                    )}
+                    {isGameScreenActive && showSkip && (
                         <button onClick={handleSkipLevel} className="btn-secondary" title="Skip Level">
-                            Skip Level ⏭️
+                            <span className="desktop-text">Skip Level </span>⏭️
                         </button>
                     )}
                     <button onClick={handleToggleMute} className="btn-icon" title="Toggle Sound">
@@ -1555,9 +1581,9 @@ function App() {
                                 {` ____________________
 < PLAY COWSAY GAME! >
  --------------------
-        \\\\   ^__^
-         \\\\  (oo)\\\\_______
-            (__)\\\\       )\\\\/\\\\
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
                             </pre>
@@ -1625,9 +1651,9 @@ function App() {
                                         {` ___________________
 < Win!              >
  -------------------
-        \\\\   ^__^
-         \\\\  (★★)\\\\_______
-            (__)\\\\       )\\\\/\\\\
+        \\   ^__^
+         \\  (★★)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
                                     </pre>
@@ -1650,11 +1676,11 @@ function App() {
                                 >
                                     <div className="bubble">{cow.text}</div>
                                     <pre className="ascii-art" style={{ fontSize: "0.65rem", lineHeight: 1.15, width: "fit-content", margin: "0 auto" }}>
-                                        {`  (oo)
-  /--\\\\______
- (__)       )\\\\/\\\\
-     ||---w |
-     ||    ||`}
+                                        {`  ^__^
+ (oo)\\_______
+ (__)\\       )\\/\\
+     ||----w |
+     ||     ||`}
                                     </pre>
                                 </div>
                             ))}
@@ -1681,9 +1707,10 @@ function App() {
                                             {`  __
 < `}{slot.char}{` >
   --
-  \\ (oo)
-    (__)\\
-    ||-w|`}
+  \\  ^__^
+   \\ (oo)
+     (__)\\
+     ||-w|`}
                                         </pre>
                                     ) : (
                                         <span className="slot-label">
@@ -1713,9 +1740,10 @@ function App() {
                                             {`  __
 < `}{letter.char}{` >
   --
-  \\ (oo)
-    (__)\\
-    ||-w|`}
+  \\  ^__^
+   \\ (oo)
+     (__)\\
+     ||-w|`}
                                         </pre>
                                     </div>
                                 ))
@@ -1725,9 +1753,9 @@ function App() {
                                         {` ___________________
 < Win!              >
  -------------------
-        \\\\   ^__^
-         \\\\  (★★)\\\\_______
-            (__)\\\\       )\\/\\
+        \\   ^__^
+         \\  (★★)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
                                     </pre>
@@ -1779,9 +1807,9 @@ function App() {
                                         {` ________________
 < Translate: ${morseTargets[morseTargetIdx] ?? ""} >
  ----------------
-        \\\\   ^__^
-         \\\\  (oo)\\\\_______
-            (__)\\\\       )\\\\/\\\\
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
                                     </pre>
@@ -1823,9 +1851,9 @@ function App() {
                                 {` ________________
 < ${clickerWord}${" ".repeat(Math.max(0, 14 - clickerWord.length))}>
  ----------------
-        \\\\   ^__^
-         \\\\  (oo)\\\\_______
-            (__)\\\\       )\\\\/\\\\
+        \\   ^__^
+         \\  (oo)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
                             </pre>
@@ -1875,33 +1903,33 @@ function App() {
  <   Moo-ve Out!   >
   -----------------
          \\   ^__^
-          \\  (★★)\\\\_______
-             (__)\\\\       )\\\\/\\\\
+          \\  (★★)\\_______
+             (__)\\       )\\/\\
                  ||----w |
                  ||     ||`
                                     ) : l8HitsLeft <= 10 ? (
                                         `           |
-      x__x |
-     (x.x)  = =____
-     (xx)        /  /
-         ||      ||
-     [ BROKEN SECT ]`
+       x__x |
+      (x.x)  = =____
+      (xx)        /  /
+          ||      ||
+      [ BROKEN SECT ]`
                                     ) : l8HitsLeft <= 20 ? (
                                         `           |
-      ^__^ |
-     (o/o)\\\\= =____
-     (/__)\\\\      /)\\\\/\\\\
-         ||- - -w|
-         ||     ||
-     [ CRACKED HP ]`
+       ^__^ |
+      (o/o)\\= =____
+      (/__)\\      /)\\/\\
+          ||- - -w|
+          ||     ||
+      [ CRACKED HP ]`
                                     ) : (
                                         `           |
-      ^__^ |
-     (o.o)\\\\|= =____
-     (__)\\\\\\       )\\\\/\\\\
-         ||-----w|
-         ||     ||
-      [ COW PINJATA ]`
+       ^__^ |
+      (o.o)\\|= =____
+      (__)\\       )\\/\\
+          ||-----w|
+          ||     ||
+       [ COW PINJATA ]`
                                     )}
                                 </pre>
                             </div>
@@ -1971,9 +1999,9 @@ function App() {
                                 {` ___________________
 < MOOO-ve along... >
  -------------------
-        \\\\   ^__^
-         \\\\  (xx)\\\\_______
-            (__)\\\\       )\\\\/\\\\
+        \\   ^__^
+         \\  (xx)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
                             </pre>
@@ -1992,9 +2020,9 @@ function App() {
                                 {` _______________________________________
 < WINNER! COWSAY RULES THE PASTURE! >
  ---------------------------------------
-        \\\\   ^__^
-         \\\\  (★☆)\\\\_______
-            (__)\\\\       )\\\\/\\\\
+        \\   ^__^
+         \\  (★☆)\\_______
+            (__)\\       )\\/\\
                 ||----w |
                 ||     ||`}
                             </pre>
