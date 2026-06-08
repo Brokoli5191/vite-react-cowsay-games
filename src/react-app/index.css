@@ -602,3 +602,365 @@ footer {
     border-color: var(--border-hover);
 }
 
+/* Level 1 Assemble styles */
+.assembly-slots-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 480px;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.assembly-slot {
+    min-height: 70px;
+    border: 1px dashed var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    transition: all var(--transition-speed);
+    position: relative;
+    cursor: pointer;
+}
+
+.assembly-slot.drag-over {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+}
+
+.assembly-slot.filled {
+    border-style: solid;
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+}
+
+.assembly-slot .slot-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+.assembly-pasture {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 2.5rem;
+    padding: 1.2rem;
+    border: 1px dashed var(--border-color);
+    min-height: 100px;
+    align-items: center;
+}
+
+.assembly-part {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    cursor: grab;
+    transition: all var(--transition-speed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+}
+
+.assembly-part:hover {
+    border-color: var(--border-hover);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.assembly-part:active {
+    cursor: grabbing;
+}
+
+/* Level 8 Pinjata styles */
+.pinjata-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+.pinjata-wrapper {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    transition: all 0.08s ease;
+    user-select: none;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pinjata-wrapper:hover {
+    border-color: var(--border-hover);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.pinjata-wrapper.hitting {
+    transform: scale(0.95);
+    background: var(--accent-dim);
+    border-color: var(--accent);
+}
+
+.pinjata-hp-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--border-color);
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.pinjata-hp-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.1s ease;
+}
+
+/* Level 9 Blind Cow styles */
+.blindcow-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.blindcow-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    gap: 3px;
+    width: 320px;
+    height: 320px;
+    background: var(--border-color);
+    border: 3px solid var(--border-color);
+    margin-bottom: 1.5rem;
+}
+
+.blindcow-cell {
+    background: var(--bg-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: bold;
+    user-select: none;
+    position: relative;
+}
+
+.blindcow-cell.player {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+}
+
+.blindcow-cell.opponent {
+    background: rgba(255, 85, 85, 0.2);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+}
+
+.blindcow-controls {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    width: 150px;
+    margin-bottom: 1rem;
+}
+
+.dpad-btn {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    padding: 0.5rem;
+    cursor: pointer;
+    text-align: center;
+    user-select: none;
+}
+
+.dpad-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--primary);
+}
+
+.dpad-btn:active {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dpad-empty {
+    visibility: hidden;
+}
+
+@media (max-width: 600px) {
+    /* Main body and card */
+    main {
+        padding: 0.5rem;
+    }
+    
+    .game-card {
+        padding: 1.5rem 1rem;
+        box-shadow: none;
+        border: none;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 1.2rem;
+    }
+
+    /* HUD adjustments */
+    .stats-panel {
+        gap: 1.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-val {
+        font-size: 1.2rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+
+    .progress-bar-container {
+        margin-bottom: 1.2rem;
+    }
+
+    /* ASCII wrapper adjustments */
+    .ascii-cow-wrapper {
+        padding: 0.8rem;
+        font-size: 0.75rem;
+        margin-bottom: 1.2rem;
+    }
+
+    /* Level 1: Assembly */
+    .assembly-slots-container {
+        padding: 0.75rem;
+        gap: 0.4rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .assembly-slot {
+        min-height: 55px;
+    }
+
+    .assembly-slot .slot-label {
+        font-size: 0.7rem;
+    }
+
+    .assembly-slot pre.ascii-art {
+        font-size: 0.65rem !important;
+        width: 260px !important;
+    }
+
+    .assembly-pasture {
+        padding: 0.8rem;
+        gap: 0.6rem;
+        min-height: 80px;
+        margin-bottom: 1.5rem;
+    }
+
+    .assembly-part {
+        padding: 0.4rem 0.6rem;
+    }
+
+    .assembly-part pre.ascii-art {
+        font-size: 0.65rem !important;
+    }
+
+    /* Level 2: Translation */
+    .pasture-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.6rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .pasture-cow {
+        padding: 0.6rem 0.3rem;
+        min-height: 110px;
+    }
+
+    .pasture-cow pre.ascii-art {
+        font-size: 0.55rem !important;
+    }
+
+    /* Level 3: Spelling */
+    .drop-slots-container {
+        gap: 0.4rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .drop-slot {
+        width: 72px;
+        height: 100px;
+    }
+
+    .drop-slot pre.ascii-art,
+    .drag-cow pre.ascii-art {
+        font-size: 0.65rem !important;
+    }
+
+    .drag-pasture {
+        padding: 0.8rem;
+        gap: 0.6rem;
+        min-height: 80px;
+        margin-bottom: 1.5rem;
+    }
+
+    .drag-cow {
+        padding: 0.4rem 0.6rem;
+    }
+
+    /* Level 5: Morse Code layout */
+    .morse-layout {
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 1rem !important;
+    }
+
+    .morse-left, .morse-right {
+        width: 100%;
+        max-width: 100% !important;
+        flex: none !important;
+    }
+
+    .morse-chart-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    /* Level 9: Blind Cow */
+    .blindcow-grid {
+        width: 260px;
+        height: 260px;
+    }
+
+    .blindcow-cell {
+        font-size: 0.55rem;
+    }
+}
+
+

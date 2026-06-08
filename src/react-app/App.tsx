@@ -201,10 +201,33 @@ interface BgCowData {
     delay: number;
 }
 
+interface AssemblyPart {
+    id: number;
+    type: 'bubble' | 'head' | 'body' | 'legs';
+    text: string;
+}
+
+interface Position {
+    x: number;
+    y: number;
+}
+
 function App() {
     // Declarative Screen state
     const [screen, setScreen] = useState<
-        'start' | 'intro' | 'level1' | 'level2-flash' | 'level3-translation' | 'level4-spelling' | 'level5-morse' | 'level6-clicker' | 'gameover' | 'victory'
+        | 'start'
+        | 'intro'
+        | 'level1-assemble'
+        | 'level2-translation'
+        | 'level3-spelling'
+        | 'level4-flash'
+        | 'level5-morse'
+        | 'level6-clicker'
+        | 'level7-typing'
+        | 'level8-pinjata'
+        | 'level9-blindcow'
+        | 'gameover'
+        | 'victory'
     >('start');
 
     // Global HUD states
@@ -236,6 +259,30 @@ function App() {
     const startTimeRef = useRef<number | null>(null);
     const currentLevelRef = useRef<number>(1);
 
+    // Level 1: Assembly states
+    const initialAssemblyParts: AssemblyPart[] = [
+        { id: 0, type: 'bubble', text: " _________________\n<      Win!       >\n -----------------" },
+        { id: 1, type: 'head', text: "        \\   ^__^\n         \\  (oo)\\\\_______" },
+        { id: 2, type: 'body', text: "            (__)\\\\       )\\\\/\\\\" },
+        { id: 3, type: 'legs', text: "                ||----w |\n                ||     ||" }
+    ];
+    const [l1AssembleParts, setL1AssembleParts] = useState<AssemblyPart[]>([]);
+    const [l1AssembleSlots, setL1AssembleSlots] = useState<(AssemblyPart | null)[]>([null, null, null, null]);
+    const [l1SlotsShake, setL1SlotsShake] = useState<boolean>(false);
+    const [l1AssembleWin, setL1AssembleWin] = useState<boolean>(false);
+
+    // Level 8: Pinjata states
+    const [l8HitsLeft, setL8HitsLeft] = useState<number>(30);
+    const [l8PinjataShake, setL8PinjataShake] = useState<boolean>(false);
+    const [l8PinjataWin, setL8PinjataWin] = useState<boolean>(false);
+    const l8StartedRef = useRef<boolean>(false);
+
+    // Level 9: Blind Cow states
+    const [l9PlayerPos, setL9PlayerPos] = useState<Position>({ x: 0, y: 0 });
+    const [l9Opponents, setL9Opponents] = useState<Position[]>([]);
+    const [l9OpponentsActive, setL9OpponentsActive] = useState<boolean[]>([]);
+    const [l9Message, setL9Message] = useState<string>("Catch an opponent!");
+
     // Level 1: Typing Frenzy states
     const [l1Target, setL1Target] = useState<string>("win!");
     const [l1Input, setL1Input] = useState<string>("");
@@ -248,7 +295,6 @@ function App() {
     const impostorWords = ["Moo!", "Milk!", "Grass!", "Cow!", "Hay!", "Farm!", "Sleep!", "Eat!", "Barn!", "Beef!", "Burger!"];
     const [l2Cows, setL2Cows] = useState<L2Cow[]>([]);
     const [purgedCount, setPurgedCount] = useState<number>(0);
-    const [totalImpostors, setTotalImpostors] = useState<number>(6);
 
     // Level 3: Spelling Board states
     const [l3PastureLetters, setL3PastureLetters] = useState<LetterCow[]>([]);
@@ -344,10 +390,23 @@ function App() {
 
     // Game countdown timer loop hook
     useEffect(() => {
-        const activeScreens = ['level1', 'level2-flash', 'level3-translation', 'level4-spelling', 'level5-morse', 'level6-clicker'];
+        const activeScreens = [
+            'level1-assemble',
+            'level2-translation',
+            'level3-spelling',
+            'level4-flash',
+            'level5-morse',
+            'level6-clicker',
+            'level7-typing',
+            'level8-pinjata',
+            'level9-blindcow'
+        ];
         if (!activeScreens.includes(screen)) return;
 
         const interval = setInterval(() => {
+            if (screen === 'level8-pinjata' && !l8StartedRef.current) {
+                return;
+            }
             setTimer(prev => {
                 if (prev <= 1) {
                     clearInterval(interval);
@@ -385,13 +444,13 @@ function App() {
 
     // Focus input field hooks
     useEffect(() => {
-        if (screen === 'level1' && l1InputRef.current) {
+        if (screen === 'level7-typing' && l1InputRef.current) {
             l1InputRef.current.focus();
         }
     }, [screen, l1Target]);
 
     useEffect(() => {
-        if (screen === 'level2-flash' && flashState === 'question' && l2FlashInputRef.current) {
+        if (screen === 'level4-flash' && flashState === 'question' && l2FlashInputRef.current) {
             l2FlashInputRef.current.focus();
         }
     }, [screen, flashState]);
@@ -418,17 +477,21 @@ function App() {
         setPanelShake(false);
 
         if (levelNum === 1) {
-            setL1Score(0);
-            setL1Input("");
-            setScoreLabel("TYPED");
-            setScoreVal("0/20");
+            setTimer(45);
+            setL1AssembleSlots([null, null, null, null]);
+            setL1AssembleParts([...initialAssemblyParts].sort(() => 0.5 - Math.random()));
+            setL1AssembleWin(false);
+            setScoreLabel("Parts Snapped");
+            setScoreVal("0/4");
             setProgressPercentage(0);
-            generateNextLevel1Word("");
-            setScreen('level1');
+            setScreen('level1-assemble');
 
         } else if (levelNum === 2) {
-            setScoreLabel("PURGED");
-            setScreen('level3-translation');
+            setTimer(30);
+            setScoreLabel("Wins Found");
+            setScoreVal("0/4");
+            setProgressPercentage(0);
+            setScreen('level2-translation');
             setupLevel2Pasture();
 
         } else if (levelNum === 3) {
@@ -437,15 +500,16 @@ function App() {
             setScoreVal("0/4");
             setProgressPercentage(0);
             setL3FusionWin(false);
-            setScreen('level4-spelling');
+            setScreen('level3-spelling');
             setupLevel3SpellingBoard();
 
         } else if (levelNum === 4) {
+            setTimer(30);
             setFlashScore(0);
             setScoreLabel("FLASHED");
             setScoreVal("0/5");
             setProgressPercentage(0);
-            setScreen('level2-flash');
+            setScreen('level4-flash');
             startLevel2Flash();
 
         } else if (levelNum === 5) {
@@ -464,6 +528,42 @@ function App() {
             setScoreVal("0/3");
             setProgressPercentage(0);
             setScreen('level6-clicker');
+
+        } else if (levelNum === 7) {
+            setTimer(30);
+            setL1Score(0);
+            setL1Input("");
+            setScoreLabel("TYPED");
+            setScoreVal("0/20");
+            setProgressPercentage(0);
+            generateNextLevel1Word("");
+            setScreen('level7-typing');
+
+        } else if (levelNum === 8) {
+            setTimer(15);
+            setL8HitsLeft(30);
+            setL8PinjataShake(false);
+            setL8PinjataWin(false);
+            l8StartedRef.current = false;
+            setScoreLabel("HITS LEFT");
+            setScoreVal("30 HP");
+            setProgressPercentage(0);
+            setScreen('level8-pinjata');
+
+        } else if (levelNum === 9) {
+            setTimer(40);
+            setL9PlayerPos({ x: 0, y: 0 });
+            setL9Opponents([
+                { x: 5, y: 5 },
+                { x: 6, y: 2 },
+                { x: 3, y: 6 }
+            ]);
+            setL9OpponentsActive([true, true, true]);
+            setL9Message("Catch an opponent!");
+            setScoreLabel("OPPONENTS");
+            setScoreVal("3 LEFT");
+            setProgressPercentage(0);
+            setScreen('level9-blindcow');
         }
     };
 
@@ -539,7 +639,6 @@ function App() {
         setTimeout(() => {
             setIntroFrame(4);
             getSynth().playMoo();
-            triggerScreenSparks();
         }, 2400);
         setTimeout(() => {
             startLevel(1);
@@ -547,7 +646,120 @@ function App() {
     };
 
     // ==========================================
-    // LEVEL 1: TYPING FRENZY
+    // LEVEL 1: COW ASSEMBLY
+    // ==========================================
+    const handleAssemblyPartTap = (part: AssemblyPart, isInsideSlot: boolean, slotIndex?: number) => {
+        if (screen !== 'level1-assemble' || l1AssembleWin) return;
+        if (isInsideSlot && slotIndex !== undefined) {
+            setL1AssembleSlots(prev => {
+                const next = [...prev];
+                next[slotIndex] = null;
+                return next;
+            });
+            setL1AssembleParts(prev => [...prev, part]);
+            getSynth().playPop();
+        } else {
+            const firstEmptyIdx = l1AssembleSlots.findIndex(s => s === null);
+            if (firstEmptyIdx !== -1) {
+                setL1AssembleSlots(prev => {
+                    const next = [...prev];
+                    next[firstEmptyIdx] = part;
+                    return next;
+                });
+                setL1AssembleParts(prev => prev.filter(p => p.id !== part.id));
+                getSynth().playPop();
+            }
+        }
+    };
+
+    const handleAssemblyDragStart = (e: React.DragEvent, part: AssemblyPart, sourceSlotIdx?: number) => {
+        if (l1AssembleWin) return;
+        e.dataTransfer.setData("text/plain", JSON.stringify({ part, sourceSlotIdx }));
+    };
+
+    const handleAssemblyDrop = (e: React.DragEvent, targetSlotIdx: number) => {
+        e.preventDefault();
+        if (l1AssembleWin) return;
+        try {
+            const dataStr = e.dataTransfer.getData("text/plain");
+            if (!dataStr) return;
+            const { part, sourceSlotIdx } = JSON.parse(dataStr) as { part: AssemblyPart, sourceSlotIdx?: number };
+
+            if (l1AssembleSlots[targetSlotIdx] !== null) return;
+
+            if (sourceSlotIdx !== undefined) {
+                setL1AssembleSlots(prev => {
+                    const next = [...prev];
+                    next[sourceSlotIdx] = null;
+                    return next;
+                });
+            } else {
+                setL1AssembleParts(prev => prev.filter(p => p.id !== part.id));
+            }
+
+            setL1AssembleSlots(prev => {
+                const next = [...prev];
+                next[targetSlotIdx] = part;
+                return next;
+            });
+            getSynth().playPop();
+        } catch (err) {
+            console.error("Assembly drop failed", err);
+        }
+    };
+
+    const handleAssemblyDropPasture = (e: React.DragEvent) => {
+        e.preventDefault();
+        if (l1AssembleWin) return;
+        try {
+            const dataStr = e.dataTransfer.getData("text/plain");
+            if (!dataStr) return;
+            const { part, sourceSlotIdx } = JSON.parse(dataStr) as { part: AssemblyPart, sourceSlotIdx?: number };
+
+            if (sourceSlotIdx !== undefined) {
+                setL1AssembleSlots(prev => {
+                    const next = [...prev];
+                    next[sourceSlotIdx] = null;
+                    return next;
+                });
+                setL1AssembleParts(prev => [...prev, part]);
+                getSynth().playPop();
+            }
+        } catch (err) {
+            console.error("Assembly pasture drop failed", err);
+        }
+    };
+
+    useEffect(() => {
+        if (screen !== 'level1-assemble') return;
+
+        const filledSlots = l1AssembleSlots.filter(s => s !== null);
+        setScoreVal(`${filledSlots.length}/4`);
+        setProgressPercentage((filledSlots.length / 4) * 100);
+
+        if (filledSlots.length === 4) {
+            const types = l1AssembleSlots.map(s => s?.type);
+            const isCorrect = types[0] === 'bubble' && types[1] === 'head' && types[2] === 'body' && types[3] === 'legs';
+
+            if (isCorrect) {
+                setTimer(999);
+                getSynth().playSuccess();
+                triggerScreenSparks();
+                setL1AssembleWin(true);
+                setTimeout(() => {
+                    handleLevelWin(2);
+                }, 1800);
+            } else {
+                getSynth().playFailure();
+                setL1SlotsShake(true);
+                setTimeout(() => setL1SlotsShake(false), 450);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [l1AssembleSlots, screen]);
+
+    // ==========================================
+    // LEVEL 7: TYPING FRENZY
     // ==========================================
     const generateNextLevel1Word = (currentWord: string) => {
         const base = "win!";
@@ -619,32 +831,31 @@ function App() {
         
         setL2Cows(pool);
         setPurgedCount(0);
-        setTotalImpostors(fakes.length);
-        setScoreVal(`0/${fakes.length}`);
+        setScoreVal(`0/4`);
         setProgressPercentage(0);
     };
 
     const handleLevel2CowClick = (cow: L2Cow) => {
         if (cow.zapping || cow.wrongClick) return;
 
-        if (cow.isImpostor) {
-            // Purged successfully
+        if (!cow.isImpostor) {
+            // Clicked correct translation: collected/saved!
             getSynth().playZap();
             setL2Cows(prev => prev.map(c => c.id === cow.id ? { ...c, zapping: true } : c));
             
             const nextPurged = purgedCount + 1;
             setPurgedCount(nextPurged);
-            setScoreVal(`${nextPurged}/${totalImpostors}`);
-            setProgressPercentage((nextPurged / totalImpostors) * 100);
+            setScoreVal(`${nextPurged}/4`);
+            setProgressPercentage((nextPurged / 4) * 100);
 
             setTimeout(() => {
                 setL2Cows(prev => prev.filter(c => c.id !== cow.id));
-                if (nextPurged >= totalImpostors) {
+                if (nextPurged >= 4) {
                     handleLevelWin(3); // Advance to Level 3 (Spelling)
                 }
             }, 380);
         } else {
-            // Clicked valid win translation (Mistake)
+            // Clicked impostor word (Mistake)
             getSynth().playFailure();
             setL2Cows(prev => prev.map(c => c.id === cow.id ? { ...c, wrongClick: true } : c));
             setPanelShake(true);
@@ -705,7 +916,7 @@ function App() {
 
     // Check spelling after slot update
     useEffect(() => {
-        if (screen !== 'level4-spelling') return;
+        if (screen !== 'level3-spelling') return;
 
         const filledSlots = l3Slots.filter(s => s !== null);
         setScoreVal(`${filledSlots.length}/4`);
@@ -949,7 +1160,7 @@ function App() {
             setTimeout(() => setL6FlashSuccess(false), 200);
 
             if (nextScore >= 3) {
-                handleGameVictory();
+                handleLevelWin(7); // Advance to Level 7 (Typing)
             }
         } else {
             getSynth().playFailure();
@@ -965,6 +1176,155 @@ function App() {
         }
     };
 
+    // ==========================================
+    // LEVEL 8: PINJATA
+    // ==========================================
+    const handlePinjataHit = () => {
+        if (l8PinjataWin || timer <= 0) return;
+
+        if (!l8StartedRef.current) {
+            l8StartedRef.current = true;
+        }
+
+        getSynth().playZap();
+        setL8PinjataShake(true);
+        setTimeout(() => setL8PinjataShake(false), 80);
+
+        const nextHits = l8HitsLeft - 1;
+        setL8HitsLeft(nextHits);
+        setScoreVal(`${nextHits} HP`);
+        setProgressPercentage(((30 - nextHits) / 30) * 100);
+
+        triggerScreenSparks();
+
+        if (nextHits <= 0) {
+            setTimer(999);
+            getSynth().playSuccess();
+            setL8PinjataWin(true);
+            setTimeout(() => {
+                handleLevelWin(9); // Advance to Level 9 (Blind Cow)
+            }, 1800);
+        }
+    };
+
+    // ==========================================
+    // LEVEL 9: BLIND COW
+    // ==========================================
+    const moveBlindCow = (dx: number, dy: number) => {
+        if (screen !== 'level9-blindcow' || timer <= 0) return;
+
+        const newX = Math.max(0, Math.min(7, l9PlayerPos.x + dx));
+        const newY = Math.max(0, Math.min(7, l9PlayerPos.y + dy));
+        const newPos = { x: newX, y: newY };
+        
+        setL9PlayerPos(newPos);
+        getSynth().playTick();
+
+        // Check catch before opponents move
+        let caughtIndex = -1;
+        l9Opponents.forEach((opp, idx) => {
+            if (l9OpponentsActive[idx] && opp.x === newPos.x && opp.y === newPos.y) {
+                caughtIndex = idx;
+            }
+        });
+
+        if (caughtIndex !== -1) {
+            handleBlindCowCatch(caughtIndex);
+            return;
+        }
+
+        // Move opponents
+        setL9Opponents(prev => {
+            return prev.map((opp, idx) => {
+                if (!l9OpponentsActive[idx]) return opp;
+
+                // 25% chance of staying still
+                if (Math.random() < 0.25) return opp;
+
+                // Possible moves
+                const moves = [
+                    { x: opp.x, y: opp.y },
+                    { x: opp.x + 1, y: opp.y },
+                    { x: opp.x - 1, y: opp.y },
+                    { x: opp.x, y: opp.y + 1 },
+                    { x: opp.x, y: opp.y - 1 }
+                ].filter(m => m.x >= 0 && m.x <= 7 && m.y >= 0 && m.y <= 7);
+
+                let bestMove = opp;
+                let maxDist = -1;
+
+                moves.forEach(m => {
+                    const dist = Math.abs(m.x - newPos.x) + Math.abs(m.y - newPos.y);
+                    if (dist > maxDist) {
+                        maxDist = dist;
+                        bestMove = m;
+                    }
+                });
+
+                return bestMove;
+            });
+        });
+    };
+
+    const handleBlindCowCatch = (idx: number) => {
+        setL9OpponentsActive(prev => {
+            const next = [...prev];
+            next[idx] = false;
+            return next;
+        });
+
+        setTimer(999);
+        getSynth().playSuccess();
+        triggerScreenSparks();
+        setL9Message("Opponent caught! Mooo-ve to Victory!");
+        setScoreVal("0 LEFT");
+        setProgressPercentage(100);
+
+        setTimeout(() => {
+            handleGameVictory();
+        }, 1500);
+    };
+
+    useEffect(() => {
+        if (screen !== 'level9-blindcow') return;
+        
+        let caughtIndex = -1;
+        l9Opponents.forEach((opp, idx) => {
+            if (l9OpponentsActive[idx] && opp.x === l9PlayerPos.x && opp.y === l9PlayerPos.y) {
+                caughtIndex = idx;
+            }
+        });
+
+        if (caughtIndex !== -1) {
+            handleBlindCowCatch(caughtIndex);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [l9Opponents, l9PlayerPos, screen]);
+
+    useEffect(() => {
+        if (screen !== 'level9-blindcow') return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+                e.preventDefault();
+                moveBlindCow(0, -1);
+            } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+                e.preventDefault();
+                moveBlindCow(0, 1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                e.preventDefault();
+                moveBlindCow(-1, 0);
+            } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                e.preventDefault();
+                moveBlindCow(1, 0);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [screen, l9PlayerPos, l9Opponents, l9OpponentsActive]);
+
     // Developer skip level controls trigger
     const handleSkipLevel = () => {
         getSynth().playSuccess();
@@ -979,6 +1339,12 @@ function App() {
         } else if (currentLevelRef.current === 5) {
             handleLevelWin(6);
         } else if (currentLevelRef.current === 6) {
+            handleLevelWin(7);
+        } else if (currentLevelRef.current === 7) {
+            handleLevelWin(8);
+        } else if (currentLevelRef.current === 8) {
+            handleLevelWin(9);
+        } else if (currentLevelRef.current === 9) {
             handleGameVictory();
         }
     };
@@ -1069,10 +1435,10 @@ function App() {
         return (
             <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
                 {` ________________
-<      WIN!      >
+<      Moo!      >
  ----------------
         \\\\\\\\   ^__^
-         \\\\\\\\  (★★)\\\\_______
+         \\\\\\\\  (oo)\\\\_______
             (__)\\\\       )\\\\/\\\\
                 ||----w |
                 ||     ||`}
@@ -1080,7 +1446,17 @@ function App() {
         );
     };
 
-    const isGameScreenActive = ['level1', 'level2-flash', 'level3-translation', 'level4-spelling', 'level5-morse', 'level6-clicker'].includes(screen);
+    const isGameScreenActive = [
+        'level1-assemble',
+        'level2-translation',
+        'level3-spelling',
+        'level4-flash',
+        'level5-morse',
+        'level6-clicker',
+        'level7-typing',
+        'level8-pinjata',
+        'level9-blindcow'
+    ].includes(screen);
 
     return (
         <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
@@ -1197,33 +1573,73 @@ function App() {
                         </div>
                     </section>
 
-                    {/* SCREEN: LEVEL 1 (TYPING) */}
-                    <section className={`screen ${screen === 'level1' ? 'active' : ''}`}>
-                        <h2>Level 1: Typing</h2>
-                        <p className="subtitle">Type case-sensitive matches exactly as shown.</p>
+                    {/* SCREEN: LEVEL 1 (COW ASSEMBLY) */}
+                    <section className={`screen ${screen === 'level1-assemble' ? 'active' : ''}`}>
+                        <h2>Level 1: Assemble the Cow</h2>
+                        <p className="subtitle">Assemble the parts of a cow so she can win! Drag the parts or click them to place them in order.</p>
 
-                        <div className={`ascii-cow-wrapper ${l1Success ? 'success-flash' : ''} ${l1Fail ? 'fail-flash' : ''}`}>
-                            {renderLevel1Cow()}
+                        <div className={`assembly-slots-container ${l1SlotsShake ? 'shake-animation' : ''}`}>
+                            {l1AssembleSlots.map((slot, idx) => (
+                                <div
+                                    key={idx}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleAssemblyDrop(e, idx)}
+                                    onClick={() => { if (slot) handleAssemblyPartTap(slot, true, idx); }}
+                                    className={`assembly-slot ${slot ? 'filled' : ''}`}
+                                >
+                                    {slot ? (
+                                        <pre className="ascii-art" style={{ fontSize: "0.8rem", lineHeight: 1.25, margin: "0 auto", width: "320px", textAlign: "left" }}>
+                                            {slot.text}
+                                        </pre>
+                                    ) : (
+                                        <span className="slot-label">
+                                            {idx === 0 ? '[Slot 1: Speech Bubble]' : idx === 1 ? '[Slot 2: Cow Head]' : idx === 2 ? '[Slot 3: Cow Body]' : '[Slot 4: Cow Legs]'}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
                         </div>
 
-                        <div className="game-input-container">
-                            <input
-                                ref={l1InputRef}
-                                type="text"
-                                className="input-field"
-                                value={l1Input}
-                                onChange={handleLevel1Change}
-                                placeholder="..."
-                                autoComplete="off"
-                                spellCheck={false}
-                            />
+                        <div
+                            onDragOver={handleDragOver}
+                            onDrop={handleAssemblyDropPasture}
+                            className="assembly-pasture"
+                        >
+                            {!l1AssembleWin ? (
+                                l1AssembleParts.map(part => (
+                                    <div
+                                        key={part.id}
+                                        draggable
+                                        onDragStart={(e) => handleAssemblyDragStart(e, part)}
+                                        onClick={() => handleAssemblyPartTap(part, false)}
+                                        className="assembly-part"
+                                    >
+                                        <pre className="ascii-art" style={{ fontSize: "0.75rem", lineHeight: 1.25, margin: 0 }}>
+                                            {part.text}
+                                        </pre>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="ascii-cow-wrapper text-center victory-cow" style={{ width: "100%", border: "none", background: "transparent" }}>
+                                    <pre className="ascii-art" style={{ color: "var(--accent)" }}>
+                                        {` ___________________
+< Win!              >
+ -------------------
+        \\\\   ^__^
+         \\\\  (★★)\\\\_______
+            (__)\\\\       )\\\\/\\\\
+                ||----w |
+                ||     ||`}
+                                    </pre>
+                                </div>
+                            )}
                         </div>
                     </section>
 
-                    {/* SCREEN: LEVEL 2 (TRANSLATION PURGE) */}
-                    <section className={`screen ${screen === 'level3-translation' ? 'active' : ''}`}>
+                    {/* SCREEN: LEVEL 2 (TRANSLATION) */}
+                    <section className={`screen ${screen === 'level2-translation' ? 'active' : ''}`}>
                         <h2>Level 2: Translation</h2>
-                        <p className="subtitle">Zap cows that do NOT say "Win!" in another language.</p>
+                        <p className="subtitle">Click/zap the cows that DO say "Win!" in another language.</p>
 
                         <div className="pasture-grid">
                             {l2Cows.map(cow => (
@@ -1233,18 +1649,20 @@ function App() {
                                     className={`pasture-cow ${cow.zapping ? 'zapping' : ''} ${cow.wrongClick ? 'wrong-click' : ''}`}
                                 >
                                     <div className="bubble">{cow.text}</div>
-                                    <pre className="ascii-art" style={{ fontSize: "0.75rem", lineHeight: 1.15, width: "fit-content", margin: "0 auto" }}>
-                                        {` (oo)
-/---\\\\\\\\
-*   *`}
+                                    <pre className="ascii-art" style={{ fontSize: "0.65rem", lineHeight: 1.15, width: "fit-content", margin: "0 auto" }}>
+                                        {`  (oo)
+  /--\\\\______
+ (__)       )\\\\/\\\\
+     ||---w |
+     ||    ||`}
                                     </pre>
                                 </div>
                             ))}
                         </div>
                     </section>
 
-                    {/* SCREEN: LEVEL 3 (SPELLING BOARD) */}
-                    <section className={`screen ${screen === 'level4-spelling' ? 'active' : ''}`}>
+                    {/* SCREEN: LEVEL 3 (SPELLING) */}
+                    <section className={`screen ${screen === 'level3-spelling' ? 'active' : ''}`}>
                         <h2>Level 3: Spelling</h2>
                         <p className="subtitle">Drag letters in order to spell "Win!".</p>
 
@@ -1259,14 +1677,13 @@ function App() {
                                     className={`drop-slot ${slot ? 'filled' : ''}`}
                                 >
                                     {slot ? (
-                                        <pre className="ascii-art" style={{ fontSize: "0.6rem", lineHeight: 1.2 }}>
-                                            {`   _____
- <  `}{slot.char}{`  >
-  -----
-      \\\\   ^__^
-       \\\\ (oo)\\\\___
-         (__)\\\\   )\\\\/\\\\
-             ||-w|`}
+                                        <pre className="ascii-art" style={{ fontSize: "0.75rem", lineHeight: 1.15, margin: "0 auto" }}>
+                                            {`  __
+< `}{slot.char}{` >
+  --
+  \\ (oo)
+    (__)\\
+    ||-w|`}
                                         </pre>
                                     ) : (
                                         <span className="slot-label">
@@ -1292,14 +1709,13 @@ function App() {
                                         onClick={() => handleSpellingLetterTap(letter, false)}
                                         className="drag-cow"
                                     >
-                                        <pre className="ascii-art" style={{ fontSize: "0.7rem", lineHeight: 1.2 }}>
-                                            {`   _____
- <  `}{letter.char}{`  >
-  -----
-      \\\\   ^__^
-       \\\\ (oo)\\\\___
-         (__)\\\\   )\\\\/\\\\
-             ||-w|`}
+                                        <pre className="ascii-art" style={{ fontSize: "0.75rem", lineHeight: 1.15, margin: "0 auto" }}>
+                                            {`  __
+< `}{letter.char}{` >
+  --
+  \\ (oo)
+    (__)\\
+    ||-w|`}
                                         </pre>
                                     </div>
                                 ))
@@ -1321,7 +1737,7 @@ function App() {
                     </section>
 
                     {/* SCREEN: LEVEL 4 (FLASH MEMORY) */}
-                    <section className={`screen ${screen === 'level2-flash' ? 'active' : ''}`}>
+                    <section className={`screen ${screen === 'level4-flash' ? 'active' : ''}`}>
                         <h2>Level 4: Flash</h2>
                         <p className="subtitle">A word will flash. Type what you saw.</p>
 
@@ -1352,13 +1768,15 @@ function App() {
                     </section>
 
                     {/* SCREEN: LEVEL 5 (MORSE CODE) */}
-                    <section className={`screen ${screen === 'level5-morse' ? 'active' : ''}`}>
+                    <section className={`screen ${screen === 'level5-morse' ? 'active' : ''}`} style={{ width: "100%" }}>
                         <h2>Level 5: Morse Code</h2>
                         <p className="subtitle">Translate the word into Morse (spaces between letters).</p>
 
-                        <div className={`ascii-cow-wrapper ${morseSuccess ? 'success-flash' : ''} ${morseFail ? 'fail-flash' : ''}`}>
-                            <pre className="ascii-art">
-                                {` ________________
+                        <div className="morse-layout" style={{ display: "flex", width: "100%", gap: "2rem", flexWrap: "wrap", justifyContent: "center", alignItems: "flex-start" }}>
+                            <div className="morse-left" style={{ flex: "1 1 280px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                                <div className={`ascii-cow-wrapper ${morseSuccess ? 'success-flash' : ''} ${morseFail ? 'fail-flash' : ''}`}>
+                                    <pre className="ascii-art">
+                                        {` ________________
 < Translate: ${morseTargets[morseTargetIdx] ?? ""} >
  ----------------
         \\\\   ^__^
@@ -1366,27 +1784,30 @@ function App() {
             (__)\\\\       )\\\\/\\\\
                 ||----w |
                 ||     ||`}
-                            </pre>
-                        </div>
+                                    </pre>
+                                </div>
 
-                        <div className="game-input-container">
-                            <input
-                                ref={l5InputRef}
-                                type="text"
-                                className="input-field"
-                                value={morseInputVal}
-                                onChange={(e) => setMorseInputVal(e.target.value)}
-                                onKeyDown={(e) => { if (e.key === 'Enter') handleMorseSubmit(); }}
-                                placeholder="e.g. .-- .. -."
-                                autoComplete="off"
-                                spellCheck={false}
-                            />
-                            <button onClick={handleMorseSubmit} className="btn-primary" style={{ margin: "1rem auto 0", display: "block" }}>
-                                Submit
-                            </button>
+                                <div className="game-input-container">
+                                    <input
+                                        ref={l5InputRef}
+                                        type="text"
+                                        className="input-field"
+                                        value={morseInputVal}
+                                        onChange={(e) => setMorseInputVal(e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter') handleMorseSubmit(); }}
+                                        placeholder="e.g. .-- .. -."
+                                        autoComplete="off"
+                                        spellCheck={false}
+                                    />
+                                    <button onClick={handleMorseSubmit} className="btn-primary" style={{ margin: "1rem auto 0", display: "block" }}>
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="morse-right" style={{ flex: "1 1 200px", maxWidth: "260px" }}>
+                                {renderMorseChart()}
+                            </div>
                         </div>
-
-                        {renderMorseChart()}
                     </section>
 
                     {/* SCREEN: LEVEL 6 (REACTION CLICKER) */}
@@ -1408,6 +1829,135 @@ function App() {
                 ||----w |
                 ||     ||`}
                             </pre>
+                        </div>
+                    </section>
+
+                    {/* SCREEN: LEVEL 7 (TYPING FRENZY) */}
+                    <section className={`screen ${screen === 'level7-typing' ? 'active' : ''}`}>
+                        <h2>Level 7: Typing Frenzy</h2>
+                        <p className="subtitle">Type case-sensitive matches exactly as shown.</p>
+
+                        <div className={`ascii-cow-wrapper ${l1Success ? 'success-flash' : ''} ${l1Fail ? 'fail-flash' : ''}`}>
+                            {renderLevel1Cow()}
+                        </div>
+
+                        <div className="game-input-container">
+                            <input
+                                ref={l1InputRef}
+                                type="text"
+                                className="input-field"
+                                value={l1Input}
+                                onChange={handleLevel1Change}
+                                placeholder="..."
+                                autoComplete="off"
+                                spellCheck={false}
+                            />
+                        </div>
+                    </section>
+
+                    {/* SCREEN: LEVEL 8 (PINJATA) */}
+                    <section className={`screen ${screen === 'level8-pinjata' ? 'active' : ''}`}>
+                        <h2>Level 8: Pinjata</h2>
+                        <p className="subtitle">Hit the Pinjata until the cow wins! Click on the Pinjata box repeatedly.</p>
+
+                        <div className="pinjata-container">
+                            <div className="pinjata-hp-bar">
+                                <div className="pinjata-hp-fill" style={{ width: `${(l8HitsLeft / 30) * 100}%` }}></div>
+                            </div>
+                            
+                            <div
+                                onClick={handlePinjataHit}
+                                className={`pinjata-wrapper ${l8PinjataShake ? 'hitting' : ''}`}
+                            >
+                                <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3, cursor: "pointer" }}>
+                                    {l8PinjataWin ? (
+                                        `  _________________
+ <   Moo-ve Out!   >
+  -----------------
+         \\   ^__^
+          \\  (★★)\\\\_______
+             (__)\\\\       )\\\\/\\\\
+                 ||----w |
+                 ||     ||`
+                                    ) : l8HitsLeft <= 10 ? (
+                                        `           |
+      x__x |
+     (x.x)  = =____
+     (xx)        /  /
+         ||      ||
+     [ BROKEN SECT ]`
+                                    ) : l8HitsLeft <= 20 ? (
+                                        `           |
+      ^__^ |
+     (o/o)\\\\= =____
+     (/__)\\\\      /)\\\\/\\\\
+         ||- - -w|
+         ||     ||
+     [ CRACKED HP ]`
+                                    ) : (
+                                        `           |
+      ^__^ |
+     (o.o)\\\\|= =____
+     (__)\\\\\\       )\\\\/\\\\
+         ||-----w|
+         ||     ||
+      [ COW PINJATA ]`
+                                    )}
+                                </pre>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* SCREEN: LEVEL 9 (BLIND COW) */}
+                    <section className={`screen ${screen === 'level9-blindcow' ? 'active' : ''}`}>
+                        <h2>Level 9: Blind Cow Pasture</h2>
+                        <p className="subtitle">Guide the blind cow (xx) using WASD / Arrow Keys or the D-pad to catch the fleeing opponents (oo)!</p>
+
+                        <div className="blindcow-container">
+                            <div className="blindcow-grid">
+                                {Array.from({ length: 8 }).map((_, r) => (
+                                    Array.from({ length: 8 }).map((_, c) => {
+                                        const isPlayer = l9PlayerPos.x === c && l9PlayerPos.y === r;
+                                        let isOpponent = false;
+                                        l9Opponents.forEach((opp, idx) => {
+                                            if (l9OpponentsActive[idx] && opp.x === c && opp.y === r) {
+                                                isOpponent = true;
+                                            }
+                                        });
+
+                                        return (
+                                            <div
+                                                key={`${r}-${c}`}
+                                                className={`blindcow-cell ${isPlayer ? 'player' : ''} ${isOpponent ? 'opponent' : ''}`}
+                                            >
+                                                {isPlayer ? (
+                                                    <span>(xx)</span>
+                                                ) : isOpponent ? (
+                                                    <span>(oo)</span>
+                                                ) : (
+                                                    <span style={{ opacity: 0.15 }}>.</span>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                ))}
+                            </div>
+
+                            <p style={{ fontSize: "0.9rem", color: "var(--accent)", marginBottom: "1rem" }}>
+                                {l9Message}
+                            </p>
+
+                            <div className="blindcow-controls">
+                                <div className="dpad-empty"></div>
+                                <button className="dpad-btn" onClick={() => moveBlindCow(0, -1)}>▲</button>
+                                <div className="dpad-empty"></div>
+                                <button className="dpad-btn" onClick={() => moveBlindCow(-1, 0)}>◀</button>
+                                <div className="dpad-empty"></div>
+                                <button className="dpad-btn" onClick={() => moveBlindCow(1, 0)}>▶</button>
+                                <div className="dpad-empty"></div>
+                                <button className="dpad-btn" onClick={() => moveBlindCow(0, 1)}>▼</button>
+                                <div className="dpad-empty"></div>
+                            </div>
                         </div>
                     </section>
 
