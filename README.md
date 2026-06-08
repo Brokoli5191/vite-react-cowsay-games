@@ -31,7 +31,7 @@ Das Spiel wird auf dem Link play.cowsay.win gefunden
    Schlage die Pinjata solange bis die Kuh gewinnt!
 
 9. Neuntes Level:
-   führe die blinde kuh zu einem der gegenspieler welche aber versuchen wegzulaufen.
+   - führe die blinde kuh zu einem der gegenspieler welche aber versuchen wegzulaufen.
 
 
 ---------------------------------------------------------------------------------------------------
@@ -43,4 +43,4 @@ Idee Website cowsay.win zu einem Spiel zu machen
 Idee verschiedene Minigames zu kreieren in denen die Kuh win sagen will
 1-6. Level gemacht (Anleitung siehe oben)
 
-8.6.
+8.6. 2026
