@@ -183,15 +183,6 @@ interface LetterCow {
     char: string;
 }
 
-interface Spark {
-    id: number;
-    color: string;
-    left: number;
-    size: number;
-    delay: number;
-    drift: number;
-}
-
 interface BgCowData {
     id: number;
     pattern: string;
@@ -200,6 +191,19 @@ interface BgCowData {
     scale: number;
     delay: number;
 }
+
+interface ConfettiPiece {
+    id: number;
+    left: number;
+    color: string;
+    delay: number;
+    duration: number;
+    size: number;
+    drift: number;
+    rotation: number;
+}
+
+let confettiIdCounter = 0;
 
 interface AssemblyPart {
     id: number;
@@ -256,6 +260,8 @@ function App() {
     const l1InputRef = useRef<HTMLInputElement | null>(null);
     const l2FlashInputRef = useRef<HTMLInputElement | null>(null);
     const l5InputRef = useRef<HTMLInputElement | null>(null);
+    const gameCardRef = useRef<HTMLDivElement | null>(null);
+    const screenAreaRef = useRef<HTMLDivElement | null>(null);
 
     // Global timeline counters
     const startTimeRef = useRef<number | null>(null);
@@ -336,9 +342,44 @@ function App() {
 
     // Global animations & particles
     const [backgroundHerd, setBackgroundHerd] = useState<BgCowData[]>([]);
-    const [victorySparks, setVictorySparks] = useState<Spark[]>([]);
+    const [fullscreenConfetti, setFullscreenConfetti] = useState<ConfettiPiece[]>([]);
     const [panelShake, setPanelShake] = useState<boolean>(false);
     const [introFrame, setIntroFrame] = useState<number>(1);
+
+    // Smooth height transition on any content change (ResizeObserver-based)
+    useEffect(() => {
+        const area = screenAreaRef.current;
+        if (!area) return;
+
+        let animating = false;
+        let prevHeight = area.scrollHeight;
+
+        const observer = new ResizeObserver(() => {
+            const newH = area.scrollHeight;
+            if (animating || Math.abs(prevHeight - newH) < 2) {
+                prevHeight = newH;
+                return;
+            }
+            animating = true;
+            area.style.height = `${prevHeight}px`;
+            area.style.transition = 'none';
+            void area.offsetHeight;
+            area.style.transition = 'height 0.3s ease';
+            area.style.height = `${newH}px`;
+            prevHeight = newH;
+
+            const done = () => {
+                area.style.height = '';
+                area.style.transition = '';
+                animating = false;
+                area.removeEventListener('transitionend', done);
+            };
+            area.addEventListener('transitionend', done);
+        });
+
+        observer.observe(area);
+        return () => observer.disconnect();
+    }, []);
 
     // Dynamic background herd effect hook
     useEffect(() => {
@@ -348,21 +389,30 @@ function App() {
  (__)\\       )\\/\\
      ||----w |
      ||     ||`,
-`  (oo)
-  /--\\_______
- (__)        )\\/\\
+`  ^__^
+ (00)\\_______
+ (__)\\       )\\/\\
      ||----w |
      ||     ||`,
 `  ^__^
-  (xx)\\_______
-  (__)\\       )\\/\\
-      ||----w |
-      ||     ||`
+ (OO)\\_______
+ (__)\\       )\\/\\
+     ||----w |
+     ||     ||`,
+`  ^__^
+ (--)\\_______
+ (__)\\       )\\/\\
+     ||----w |
+     ||     ||`,
+`  ^__^
+ (**)\\_______
+ (__)\\       )\\/\\
+     ||----w |
+     ||     ||`
         ];
 
-        let idCounter = 0;
         const spawnCow = (initialDelay = false) => {
-            const id = idCounter++;
+            const id = confettiIdCounter++;
             const pattern = cowPatterns[Math.floor(Math.random() * cowPatterns.length)];
             const top = Math.random() * 65 + 15;
             const duration = Math.random() * 20 + 25;
@@ -377,15 +427,15 @@ function App() {
             }, duration * 1000);
         };
 
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => spawnCow(true), i * 400);
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => spawnCow(true), i * 350);
         }
 
         const herdInterval = setInterval(() => {
             if (!document.hidden) {
                 spawnCow(false);
             }
-        }, 12000);
+        }, 8000);
 
         return () => clearInterval(herdInterval);
     }, []);
@@ -501,7 +551,7 @@ function App() {
         setPanelShake(false);
 
         if (levelNum === 1) {
-            setTimer(45);
+            setTimer(30);
             setL1AssembleSlots([null, null, null, null]);
             setL1AssembleParts([...initialAssemblyParts].sort(() => 0.5 - Math.random()));
             setL1AssembleWin(false);
@@ -554,7 +604,7 @@ function App() {
             setScreen('level6-clicker');
 
         } else if (levelNum === 7) {
-            setTimer(40);
+            setTimer(50);
             setL1Score(0);
             setL1Input("");
             setScoreLabel("TYPED");
@@ -595,6 +645,7 @@ function App() {
         setTimerPaused(true);
         getSynth().playSuccess();
         triggerScreenSparks();
+        triggerConfettiRain();
         setTimeout(() => {
             startLevel(nextLevel);
         }, 1200);
@@ -609,6 +660,7 @@ function App() {
     const handleGameVictory = () => {
         setTimerPaused(true);
         getSynth().playMoo();
+        triggerConfettiRain();
         const duration = Math.round((Date.now() - (startTimeRef.current ?? Date.now())) / 1000);
         setFinalTime(duration);
 
@@ -624,26 +676,32 @@ function App() {
     // Confetti loop hook during Victory
     useEffect(() => {
         if (screen !== 'victory') return;
-        triggerScreenSparks();
-        const sparksInterval = setInterval(triggerScreenSparks, 800);
-        return () => clearInterval(sparksInterval);
+        triggerConfettiRain();
+        const confettiInterval = setInterval(triggerConfettiRain, 3000);
+        return () => clearInterval(confettiInterval);
     }, [screen]);
 
-    const triggerScreenSparks = () => {
-        const colors = ['#00ffaa', '#b026ff', '#00f0ff', '#ffd700', '#ff3838'];
-        const sparks: Spark[] = [];
-        let idCounter = 0;
-
-        for (let i = 0; i < 40; i++) {
-            const id = idCounter++;
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            const left = Math.random() * 100;
-            const size = Math.random() * 8 + 5;
-            const delay = Math.random() * 0.2;
-            const drift = (Math.random() - 0.5) * 150;
-            sparks.push({ id, color, left, size, delay, drift });
+    const triggerConfettiRain = () => {
+        const colors = ['#00ffaa', '#b026ff', '#00f0ff', '#ffd700', '#ff3838', '#ff69b4', '#ffa500', '#7fff00'];
+        const pieces: ConfettiPiece[] = [];
+        for (let i = 0; i < 80; i++) {
+            pieces.push({
+                id: confettiIdCounter++,
+                left: Math.random() * 100,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                delay: Math.random() * 0.8,
+                duration: Math.random() * 1.5 + 2.0,
+                size: Math.random() * 10 + 4,
+                drift: (Math.random() - 0.5) * 200,
+                rotation: Math.random() * 720
+            });
         }
-        setVictorySparks(sparks);
+        setFullscreenConfetti(pieces);
+        setTimeout(() => setFullscreenConfetti([]), 4000);
+    };
+
+    const triggerScreenSparks = () => {
+        // Replaced by fullscreen confetti (triggerConfettiRain)
     };
 
     const handleToggleMute = () => {
@@ -659,16 +717,16 @@ function App() {
         setIntroFrame(1);
         getSynth().playPop();
 
-        setTimeout(() => setIntroFrame(2), 600);
-        setTimeout(() => setIntroFrame(1), 1200);
-        setTimeout(() => setIntroFrame(3), 1800);
+        setTimeout(() => { setIntroFrame(2); getSynth().playPop(); }, 500);
+        setTimeout(() => { setIntroFrame(3); getSynth().playPop(); }, 1000);
+        setTimeout(() => { setIntroFrame(4); getSynth().playPop(); }, 1500);
         setTimeout(() => {
-            setIntroFrame(4);
+            setIntroFrame(5);
             getSynth().playMoo();
-        }, 2400);
+        }, 2200);
         setTimeout(() => {
             startLevel(1);
-        }, 4200);
+        }, 4000);
     };
 
     // ==========================================
@@ -1259,37 +1317,7 @@ function App() {
             return;
         }
 
-        // Move opponents
-        setL9Opponents(prev => {
-            return prev.map((opp, idx) => {
-                if (!l9OpponentsActive[idx]) return opp;
-
-                // 25% chance of staying still
-                if (Math.random() < 0.25) return opp;
-
-                // Possible moves
-                const moves = [
-                    { x: opp.x, y: opp.y },
-                    { x: opp.x + 1, y: opp.y },
-                    { x: opp.x - 1, y: opp.y },
-                    { x: opp.x, y: opp.y + 1 },
-                    { x: opp.x, y: opp.y - 1 }
-                ].filter(m => m.x >= 0 && m.x <= 7 && m.y >= 0 && m.y <= 7);
-
-                let bestMove = opp;
-                let maxDist = -1;
-
-                moves.forEach(m => {
-                    const dist = Math.abs(m.x - newPos.x) + Math.abs(m.y - newPos.y);
-                    if (dist > maxDist) {
-                        maxDist = dist;
-                        bestMove = m;
-                    }
-                });
-
-                return bestMove;
-            });
-        });
+        // Move opponents – they always flee from the player\n        setL9Opponents(prev => {\n            // Collect cells occupied by other active opponents (to avoid collisions)\n            const occupied = new Set<string>();\n            prev.forEach((o, i) => {\n                if (l9OpponentsActive[i]) occupied.add(`${o.x},${o.y}`);\n            });\n\n            return prev.map((opp, idx) => {\n                if (!l9OpponentsActive[idx]) return opp;\n\n                // Possible moves (never stay still)\n                const allMoves = [\n                    { x: opp.x + 1, y: opp.y },\n                    { x: opp.x - 1, y: opp.y },\n                    { x: opp.x, y: opp.y + 1 },\n                    { x: opp.x, y: opp.y - 1 }\n                ].filter(m => m.x >= 0 && m.x <= 7 && m.y >= 0 && m.y <= 7);\n\n                // Prefer cells not occupied by another active opponent\n                const freeMoves = allMoves.filter(m => !occupied.has(`${m.x},${m.y}`) || (m.x === opp.x && m.y === opp.y));\n                const moves = freeMoves.length > 0 ? freeMoves : allMoves;\n\n                // Maximise distance from player, shuffle ties for unpredictability\n                const shuffled = [...moves].sort(() => Math.random() - 0.5);\n                let bestMove = shuffled[0] ?? opp;\n                let maxDist = -1;\n\n                shuffled.forEach(m => {\n                    const dist = Math.abs(m.x - newPos.x) + Math.abs(m.y - newPos.y);\n                    if (dist > maxDist) {\n                        maxDist = dist;\n                        bestMove = m;\n                    }\n                });\n\n                return bestMove;\n            });\n        });
     };
 
     const handleBlindCowCatch = (idx: number) => {
@@ -1302,6 +1330,7 @@ function App() {
         setTimerPaused(true);
         getSynth().playSuccess();
         triggerScreenSparks();
+        triggerConfettiRain();
         setL9Message("Opponent caught! Mooo-ve to Victory!");
         setScoreVal("0 LEFT");
         setProgressPercentage(100);
@@ -1426,31 +1455,51 @@ function App() {
         if (introFrame === 1) {
             return (
                 <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
-                    {`             *crunch*
+                    {`     v  v  v  v
+    ~~~grass~~~
       ^__^  /
      (..)\\_______
      (__)\\       )\\/\\
       \\/ ||----w |
-         ||     ||  vvvv`}
+         ||     ||`}
                 </pre>
             );
         }
         if (introFrame === 2) {
             return (
                 <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
-                    {`             *munch*
-      ^__^  /
-     (--)\\_______
+                    {`       *crunch*
+      v v  v v
+    ~~~grass~~~
+      ^__^
+     (..)\\_______
      (__)\\       )\\/\\
       \\/ ||----w |
-         ||     ||  vv`}
+         ||     ||`}
                 </pre>
             );
         }
         if (introFrame === 3) {
             return (
                 <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
-                    {`      ^__^  
+                    {`        *munch*
+       v  v  v
+     ~~~grass~~~
+      ^__^
+     (--)\\_______
+     (__)\\       )\\/\\
+        ||----w |
+        ||     ||`}
+                </pre>
+            );
+        }
+        if (introFrame === 4) {
+            return (
+                <pre className="ascii-art" style={{ fontSize: "0.85rem", lineHeight: 1.3 }}>
+                    {`         *gulp*
+        v v v
+      ~~~grass~~~
+      ^__^
      (oo)\\_______
      (__)\\       )\\/\\
         ||----w |
@@ -1504,6 +1553,40 @@ function App() {
                 ))}
             </div>
 
+            {/* Fullscreen Confetti Overlay */}
+            {fullscreenConfetti.length > 0 && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+                    pointerEvents: 'none', zIndex: 9999, overflow: 'hidden'
+                }}>
+                    {fullscreenConfetti.map(p => (
+                        <div
+                            key={p.id}
+                            style={{
+                                position: 'absolute',
+                                top: '-20px',
+                                left: `${p.left}%`,
+                                width: `${p.size}px`,
+                                height: `${p.size * 1.4}px`,
+                                backgroundColor: p.color,
+                                animationDelay: `${p.delay}s`,
+                                animationDuration: `${p.duration}s`,
+                                animationFillMode: 'forwards',
+                                animationName: 'confetti-rain',
+                                opacity: 0.9,
+                                ['--drift' as string]: `${p.drift}px`
+                            }}
+                        />
+                    ))}
+                </div>
+            )}
+            <style>{`
+                @keyframes confetti-rain {
+                    0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+                    100% { transform: translateY(100vh) translateX(var(--drift)) rotate(720deg); opacity: 0; }
+                }
+            `}</style>
+
             {/* Header */}
             <header>
                 <div className="logo-container">
@@ -1528,27 +1611,8 @@ function App() {
 
             {/* Main Board */}
             <main>
-                <div className={`game-card ${panelShake ? 'shake-animation' : ''}`} id="game-container">
+                <div ref={gameCardRef} className={`game-card ${panelShake ? 'shake-animation' : ''}`} id="game-container">
                     
-                    {/* sparks victory Sparks container */}
-                    <div className="confetti-container" id="confetti-holder">
-                        {victorySparks.map(spark => (
-                            <div
-                                key={spark.id}
-                                className="confetti-particle"
-                                style={{
-                                    backgroundColor: spark.color,
-                                    left: `${spark.left}%`,
-                                    width: `${spark.size}px`,
-                                    height: `${spark.size}px`,
-                                    animationDelay: `${spark.delay}s`,
-                                    WebkitTransform: `translateX(${spark.drift}px)`,
-                                    transform: `translateX(${spark.drift}px)`
-                                }}
-                            />
-                        ))}
-                    </div>
-
                     {/* Level HUD Dashboard */}
                     {isGameScreenActive && (
                         <div className="stats-panel" id="level-hud" style={{ display: "flex" }}>
@@ -1575,6 +1639,8 @@ function App() {
                             <div className="progress-bar-fill" style={{ width: `${progressPercentage}%` }} />
                         </div>
                     )}
+
+                    <div ref={screenAreaRef} className="screen-area">
 
                     {/* SCREEN: START */}
                     <section className={`screen ${screen === 'start' ? 'active' : ''}`}>
@@ -2047,6 +2113,7 @@ function App() {
                         <button onClick={() => startLevel(1)} className="btn-primary">Play Again</button>
                     </section>
 
+                    </div>
                 </div>
             </main>
 
