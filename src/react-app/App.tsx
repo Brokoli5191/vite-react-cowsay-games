@@ -604,7 +604,7 @@ function App() {
             setScreen('level6-clicker');
 
         } else if (levelNum === 7) {
-            setTimer(50);
+            setTimer(55);
             setL1Score(0);
             setL1Input("");
             setScoreLabel("TYPED");
@@ -1854,6 +1854,7 @@ function App() {
                                         value={flashInputVal}
                                         onChange={(e) => setFlashInputVal(e.target.value)}
                                         onKeyDown={(e) => { if (e.key === 'Enter') handleFlashSubmit(); }}
+                                        onPaste={(e) => e.preventDefault()}
                                         placeholder="..."
                                         autoComplete="off"
                                         spellCheck={false}
@@ -1894,6 +1895,7 @@ function App() {
                                         value={morseInputVal}
                                         onChange={(e) => setMorseInputVal(e.target.value)}
                                         onKeyDown={(e) => { if (e.key === 'Enter') handleMorseSubmit(); }}
+                                        onPaste={(e) => e.preventDefault()}
                                         placeholder="e.g. .-- .. -."
                                         autoComplete="off"
                                         spellCheck={false}
@@ -1947,6 +1949,7 @@ function App() {
                                 className="input-field"
                                 value={l1Input}
                                 onChange={handleLevel1Change}
+                                onPaste={(e) => e.preventDefault()}
                                 placeholder="..."
                                 autoComplete="off"
                                 spellCheck={false}
