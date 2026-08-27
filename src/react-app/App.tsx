@@ -1317,7 +1317,49 @@ function App() {
             return;
         }
 
-        // Move opponents – they always flee from the player\n        setL9Opponents(prev => {\n            // Collect cells occupied by other active opponents (to avoid collisions)\n            const occupied = new Set<string>();\n            prev.forEach((o, i) => {\n                if (l9OpponentsActive[i]) occupied.add(`${o.x},${o.y}`);\n            });\n\n            return prev.map((opp, idx) => {\n                if (!l9OpponentsActive[idx]) return opp;\n\n                // Possible moves (never stay still)\n                const allMoves = [\n                    { x: opp.x + 1, y: opp.y },\n                    { x: opp.x - 1, y: opp.y },\n                    { x: opp.x, y: opp.y + 1 },\n                    { x: opp.x, y: opp.y - 1 }\n                ].filter(m => m.x >= 0 && m.x <= 7 && m.y >= 0 && m.y <= 7);\n\n                // Prefer cells not occupied by another active opponent\n                const freeMoves = allMoves.filter(m => !occupied.has(`${m.x},${m.y}`) || (m.x === opp.x && m.y === opp.y));\n                const moves = freeMoves.length > 0 ? freeMoves : allMoves;\n\n                // Maximise distance from player, shuffle ties for unpredictability\n                const shuffled = [...moves].sort(() => Math.random() - 0.5);\n                let bestMove = shuffled[0] ?? opp;\n                let maxDist = -1;\n\n                shuffled.forEach(m => {\n                    const dist = Math.abs(m.x - newPos.x) + Math.abs(m.y - newPos.y);\n                    if (dist > maxDist) {\n                        maxDist = dist;\n                        bestMove = m;\n                    }\n                });\n\n                return bestMove;\n            });\n        });
+        // Move opponents - they always flee from the player.
+        setL9Opponents(prev => {
+            // Collect cells occupied by other active opponents (to avoid collisions).
+            const occupied = new Set<string>();
+            prev.forEach((opponent, index) => {
+                if (l9OpponentsActive[index]) {
+                    occupied.add(`${opponent.x},${opponent.y}`);
+                }
+            });
+
+            return prev.map((opponent, index) => {
+                if (!l9OpponentsActive[index]) return opponent;
+
+                // Possible moves (never stay still).
+                const allMoves = [
+                    { x: opponent.x + 1, y: opponent.y },
+                    { x: opponent.x - 1, y: opponent.y },
+                    { x: opponent.x, y: opponent.y + 1 },
+                    { x: opponent.x, y: opponent.y - 1 },
+                ].filter(move => (
+                    move.x >= 0 && move.x <= 7 && move.y >= 0 && move.y <= 7
+                ));
+
+                // Prefer cells not occupied by another active opponent.
+                const freeMoves = allMoves.filter(move => !occupied.has(`${move.x},${move.y}`));
+                const moves = freeMoves.length > 0 ? freeMoves : allMoves;
+
+                // Maximize distance from the player, shuffling ties for unpredictability.
+                const shuffled = [...moves].sort(() => Math.random() - 0.5);
+                let bestMove = shuffled[0] ?? opponent;
+                let maxDistance = -1;
+
+                shuffled.forEach(move => {
+                    const distance = Math.abs(move.x - newPos.x) + Math.abs(move.y - newPos.y);
+                    if (distance > maxDistance) {
+                        maxDistance = distance;
+                        bestMove = move;
+                    }
+                });
+
+                return bestMove;
+            });
+        });
     };
 
     const handleBlindCowCatch = (idx: number) => {
